@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¡Pago Exitoso! — Abner Franco</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-base: #F4F1EA;
+      --dark-green: #2A3B32;
+      --success-green: #16a34a;
+      --tan-light: #E3D5C4;
+      --tan-dark: #9E8B76;
+      --charcoal: #1A1A1A;
+      --white: #FFFFFF;
+      --text-muted: #6B6B6B;
+      --glass-bg: rgba(255, 255, 255, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.5);
+      --glass-shadow: 0 16px 50px rgba(42, 59, 50, 0.2);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-base);
+      color: var(--charcoal);
+      overflow-x: hidden;
+      font-weight: 300;
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Orbes de fondo con gradiente verde (éxito) */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 10%;
+      left: 8%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(22, 163, 74, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.6;
+      z-index: -1;
+      pointer-events: none;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: 15%;
+      right: 5%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--dark-green) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.4;
+      z-index: -1;
+      pointer-events: none;
+      animation: float 10s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translate(0, 0);
+      }
+      50% {
+        transform: translate(30px, -30px);
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-base);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--dark-green);
+      border-radius: 4px;
+    }
+
+    /* Contenedor principal */
+    .success-container {
+      max-width: 650px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid var(--glass-border);
+      border-radius: 36px;
+      box-shadow: var(--glass-shadow);
+      padding: 60px 50px;
+      text-align: center;
+      animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Icono de check animado */
+    .check-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 30px;
+      position: relative;
+      animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s backwards;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .check-circle {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--success-green), #22c55e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+      }
+      50% {
+        box-shadow: 0 8px 32px rgba(22, 163, 74, 0.5);
+      }
+    }
+
+    .check-mark {
+      width: 40px;
+      height: 40px;
+      stroke: white;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      animation: checkmark 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.4s backwards;
+    }
+
+    @keyframes checkmark {
+      from {
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+      }
+      to {
+        stroke-dasharray: 100;
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Tipografía */
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--dark-green);
+      margin-bottom: 16px;
+      line-height: 1.2;
+      animation: fadeIn 0.6s ease 0.3s backwards;
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--success-green);
+      margin-bottom: 32px;
+      animation: fadeIn 0.6s ease 0.4s backwards;
+    }
+
+    .description {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: fadeIn 0.6s ease 0.5s backwards;
+    }
+
+    .description strong {
+      color: var(--charcoal);
+      font-weight: 600;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Botones */
+    .cta-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 40px;
+      animation: fadeIn 0.6s ease 0.6s backwards;
+    }
+
+    .btn-primary {
+      background: var(--dark-green);
+      color: var(--white);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 18px 40px;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 16px rgba(42, 59, 50, 0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(42, 59, 50, 0.3);
+      background: #1e2b24;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--dark-green);
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 14px 32px;
+      border: 2px solid var(--dark-green);
+      border-radius: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-secondary:hover {
+      background: var(--dark-green);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--tan-dark), transparent);
+      margin: 40px 0 32px;
+      opacity: 0.3;
+      animation: fadeIn 0.6s ease 0.7s backwards;
+    }
+
+    /* Información adicional */
+    .info-box {
+      background: rgba(22, 163, 74, 0.08);
+      border: 1px solid rgba(22, 163, 74, 0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 32px;
+      animation: fadeIn 0.6s ease 0.8s backwards;
+    }
+
+    .info-box p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .info-box strong {
+      color: var(--success-green);
+      font-weight: 600;
+    }
+
+    /* Footer social links */
+    .social-links {
+      margin-top: 40px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      animation: fadeIn 0.6s ease 0.9s backwards;
+    }
+
+    .social-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .social-links a:hover {
+      color: var(--dark-green);
+    }
+
+    .social-icon {
+      width: 18px;
+      height: 18px;
+      opacity: 0.7;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .success-container {
+        padding: 40px 30px;
+        border-radius: 28px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+      }
+
+      .description {
+        font-size: 1rem;
+      }
+
+      .check-icon {
+        width: 80px;
+        height: 80px;
+      }
+
+      .btn-primary {
+        font-size: 1rem;
+        padding: 16px 32px;
+      }
+
+      .btn-secondary {
+        font-size: 0.95rem;
+        padding: 12px 28px;
+      }
+
+      .social-links {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 16px;
+      }
+
+      .success-container {
+        padding: 32px 24px;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="success-container">
+    <!-- Icono de check animado -->
+    <div class="check-icon">
+      <div class="check-circle">
+        <svg class="check-mark" viewBox="0 0 52 52">
+          <polyline points="14 27 22 35 38 17" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <h1>¡Pago exitoso!</h1>
+    <p class="subtitle">Tu compra ha sido procesada de forma segura.</p>
+
+    <div id="receipt-container" style="display: none; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 12px; margin-bottom: 20px;">
+      <p style="font-family: 'DM Mono', monospace; font-size: 0.8rem; color: #8a8580; margin: 0;">
+        ID de Transacción: <strong id="tx-id" style="color: #2A3B32;"></strong>
+      </p>
+    </div>
+
+    <p class="description">
+      En breve recibirás un <strong>correo electrónico</strong> con tu recibo y las instrucciones o enlaces para <strong>descargar tus archivos HTML</strong>. 
+      Si adquiriste las Rosas Digitales, ¡ya casi están listas para usarse!
+    </p>
+
+    <!-- Botón principal -->
+    <div class="cta-container">
+      <a href="/" class="btn-primary">Volver a la tienda</a>
+      <a href="mailto:contacto@abnerfranco.me" class="btn-secondary">Contactar Soporte</a>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider"></div>
+
+    <!-- Enlaces sociales -->
+    <div class="social-links">
+      <a href="https://linkedin.com/in/abnerfranco" target="_blank">
+        <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+        </svg>
+        LinkedIn
+      </a>
+      <a href="mailto:contacto@abnerfranco.me">
+        <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+        </svg>
+        contacto@abnerfranco.me
+      </a>
+    </div>
+  </div>
+
+  <!-- Canvas Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <script>
+    // Capturar ID de transacción de la URL (si existe)
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      // Capturar parámetros de transacción
+      const txId = urlParams.get('idTransaccion') || urlParams.get('id'); 
+      if (txId) {
+        document.getElementById('receipt-container').style.display = 'block';
+        document.getElementById('tx-id').textContent = txId;
+      }
+    });
+
+    // Hacer scroll al top al cargar (por si viene de redirect)
+    window.scrollTo(0, 0);
+
+    // ========================================
+    // CONFETTI CELEBRATION 🎉
+    // ========================================
+    
+    // Función para lanzar confetti desde múltiples ángulos
+    function launchConfetti() {
+      const duration = 3000; // 3 segundos de celebración
+      const animationEnd = Date.now() + duration;
+      const defaults = { 
+        startVelocity: 30, 
+        spread: 360, 
+        ticks: 60, 
+        zIndex: 10000,
+        colors: ['#16a34a', '#22c55e', '#2A3B32', '#E3D5C4', '#FFFFFF']
+      };
+
+      function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      const interval = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+
+        // Confetti desde la izquierda
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+        });
+
+        // Confetti desde la derecha
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+        });
+      }, 250);
+    }
+
+    // Lanzar confetti inicial (explosión grande)
+    function initialBurst() {
+      confetti({
+        particleCount: 150,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: ['#16a34a', '#22c55e', '#2A3B32', '#E3D5C4', '#FFFFFF'],
+        zIndex: 10000
+      });
+    }
+
+    // Ejecutar animaciones de confetti al cargar
+    window.addEventListener('load', function() {
+      setTimeout(initialBurst, 400); // Explosión inicial después de 400ms
+      setTimeout(launchConfetti, 900); // Lluvia continua después de 900ms
+    });
+
+    // Confetti extra al hacer clic en el botón principal
+    document.addEventListener('DOMContentLoaded', function() {
+      const primaryBtn = document.querySelector('.btn-primary');
+      if (primaryBtn) {
+        primaryBtn.addEventListener('click', function(e) {
+          confetti({
+            particleCount: 80,
+            spread: 70,
+            origin: { 
+              x: e.clientX / window.innerWidth,
+              y: e.clientY / window.innerHeight
+            },
+            colors: ['#2A3B32', '#E3D5C4', '#FFFFFF'],
+            zIndex: 10000
+          });
+        });
+      }
+    });
+
+    // ========================================
+    // ANALYTICS TRACKING
+    // ========================================
+    
+    // Track conversión de pago exitoso
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'conversion', {
+        'send_to': 'AW-CONVERSION_ID/CONVERSION_LABEL',
+        'transaction_id': ''
+      });
+    }
+
+    // Track evento personalizado
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'purchase_success', {
+        'event_category': 'ecommerce',
+        'event_label': 'Payment Success',
+        'value': 1
+      });
+    }
+  </script>
+</body>
+
+</html>
