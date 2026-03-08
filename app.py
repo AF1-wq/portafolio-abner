@@ -22,7 +22,7 @@ import smtplib
 import html
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from flask import Flask, request, jsonify, send_from_directory, make_response
+from flask import Flask, render_template, request, redirect, jsonify, send_from_directory, make_response
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -47,6 +47,12 @@ logger = logging.getLogger(__name__)
 
 # Crear aplicación Flask
 app = Flask(__name__)
+
+@app.before_request
+def before_request():
+    if request.headers.get('X-Forwarded-Proto', 'http') == 'http':
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
 
 # Directorio base estable del proyecto para servir archivos incluso con Gunicorn.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
