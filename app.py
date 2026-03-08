@@ -76,7 +76,7 @@ csp = {
     'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
     'font-src': ["'self'", 'https://fonts.gstatic.com', 'data:'],
     'img-src': ["'self'", 'data:', 'https://images.unsplash.com', 'https://'],
-    'connect-src': ["'self'"],
+    'connect-src': ["'self'", "https://formspree.io"],
 }
 
 Talisman(
