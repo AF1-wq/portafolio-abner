@@ -157,128 +157,7 @@ def validate_email(email):
     return True
 
 
-# ============================================================================
-# RUTAS / ENDPOINTS
-# ============================================================================
-
-# ============================================================================
-# SERVIR ARCHIVOS ESTÁTICOS (HTML, CSS, JS, SVG)
-# ============================================================================
-
-@app.route('/')
-def index():
-    """Servir index.html"""
-    try:
-        return send_from_directory(BASE_DIR, 'index.html')
-    except FileNotFoundError:
-        return jsonify({'error': 'index.html no encontrado'}), 404
-
-
-@app.route('/gracias')
-def gracias():
-    """Servir gracias.html (página de éxito)"""
-    try:
-        return send_from_directory(BASE_DIR, 'gracias.html')
-    except FileNotFoundError:
-        return jsonify({'error': 'gracias.html no encontrado'}), 404
-
-
-@app.route('/<path:filename>')
-def serve_static(filename):
-    """Servir archivos estáticos (CSS, JS, SVG, etc) con caché optimizado"""
-    try:
-        # Extensiones permitidas
-        allowed_extensions = {'.css', '.js', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.woff', '.woff2', '.ttf', '.eot', '.html'}
-        _, ext = os.path.splitext(filename)
-        
-        if ext.lower() not in allowed_extensions:
-            return jsonify({'error': 'Tipo de archivo no permitido'}), 403
-        
-        # Enviar archivo con headers de cache optimizados
-        response = make_response(send_from_directory(BASE_DIR, filename))
-        
-        # Cache por 1 año para assets inmutables (CSS, JS, fuentes, imágenes)
-        if ext.lower() in {'.css', '.js', '.woff', '.woff2', '.ttf', '.eot', '.svg', '.png', '.jpg', '.jpeg', '.gif'}:
-            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-        # Cache más corto para HTML (validar más frecuentemente)
-        elif ext.lower() == '.html':
-            response.headers['Cache-Control'] = 'public, max-age=300'  # 5 minutos
-        
-        return response
-    except FileNotFoundError:
-        return jsonify({'error': f'Archivo {filename} no encontrado'}), 404
-
-
-@app.route('/health', methods=['GET'])
-def health_check():
-    """
-    Health check endpoint.
-    
-    Verifica que el servidor está activo.
-    
-    Response (200):
-    {
-        "status": "ok",
-        "service": "AbnerFranco.me - Portfolio Backend",
-        "mail_configured": true,
-        "timestamp": "2026-02-26T12:34:56.789..."
-    }
-    """
-    return jsonify({
-        'status': 'ok',
-        'service': 'AbnerFranco.me - Portfolio Backend',
-        'mail_configured': MAIL_OK,
-        'timestamp': datetime.now().isoformat()
-    }), 200
-
-
-@app.route('/api/send-message', methods=['POST'])
-@limiter.limit("5 per minute")  # Máximo 5 mensajes por minuto por IP
-def send_message():
-    """
-    Endpoint para el formulario de contacto con rate limiting y sanitización.
-    Recibe name, email y message y envía un correo al propietario usando la configuración SMTP.
-    """
-    if not MAIL_OK:
-        return jsonify({'error': 'Sistema de correos no configurado en el servidor'}), 503
-        
-    try:
-        if not request.is_json:
-            return jsonify({'error': 'Content-Type debe ser application/json'}), 400
-            
-        data = request.get_json(silent=True)
-        if not isinstance(data, dict):
-            return jsonify({'error': 'JSON inválido'}), 400
-
-        name = data.get('name', '').strip()
-        email = data.get('email', '').strip()
-        message = data.get('message', '').strip()
-        
-        if not name or not email or not message:
-            return jsonify({'error': 'Todos los campos son obligatorios'}), 400
-            
-        if not validate_email(email):
-            return jsonify({'error': 'Email inválido'}), 400
-
-        # Validaciones simples de tamaño para evitar payloads abusivos.
-        if len(name) > 120:
-            return jsonify({'error': 'El nombre es demasiado largo'}), 400
-        if len(email) > 254:
-            return jsonify({'error': 'El email es demasiado largo'}), 400
-        if len(message) > 5000:
-            return jsonify({'error': 'El mensaje excede el límite permitido'}), 400
-            
-            # Sanitizar HTML para prevenir inyección (escape HTML entities)
-            name_safe = html.escape(name)
-            email_safe = html.escape(email)
-            message_safe = html.escape(message)
-
-            # Convertir saltos de línea para mostrarlos correctamente en HTML.
-            mensaje_html = message_safe.replace('\n', '<br>')
-
-            # Preparar el mensaje HTML que recibirá el administrador
-            asunto = f"Nuevo mensaje de tu Portafolio: {name_safe}"
-            html_cuerpo = f"""<!DOCTYPE html>
+PLANTILLA_COSMOS = """<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -286,7 +165,7 @@ def send_message():
 <title>Cosmos Email - 3D Edition</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap');
-    body {{ margin:0; padding:0; background:#02030a; }}
+    body { margin:0; padding:0; background:#02030a; }
 </style>
 </head>
 <body style="margin:0;padding:0;background:#02030a;">
@@ -419,7 +298,7 @@ def send_message():
                             <circle cx="116" cy="46" r="2.2" fill="#fde68a" fill-opacity="0.92" filter="url(#gsoft)"/>
                             <circle cx="116" cy="46" r="7"   fill="#fde68a" fill-opacity="0.08" filter="url(#b4)"/>
                             <rect width="640" height="390" fill="url(#horiz)"/>
-                              <text x="48" y="300" font-family="'Jost',Helvetica,sans-serif" font-size="9.5" font-weight="500" letter-spacing="4.5" fill="#a78bfa" fill-opacity="0.92">TRANSMISIÓN ENTRANTE · ABNERFRANCO.ME</text>
+                              <text x="48" y="300" font-family="'Jost',Helvetica,sans-serif" font-size="9.5" font-weight="500" letter-spacing="4.5" fill="#a78bfa" fill-opacity="0.92">TRANSMISION ENTRANTE · ABNERFRANCO.ME</text>
                             <text x="46" y="350" font-family="'Cormorant Garamond',Georgia,serif" font-size="47" font-weight="300" fill="#f5f0ff" letter-spacing="-1.5">Nuevo Contacto</text>
                             <text x="48" y="382" font-family="'Cormorant Garamond',Georgia,serif" font-size="21" font-style="italic" font-weight="300" fill="#c4b5fd" fill-opacity="0.88">recibido desde el universo.</text>
                         </svg>
@@ -435,14 +314,14 @@ def send_message():
                                             <td width="47%" style="background:linear-gradient(145deg,rgba(255,255,255,0.07) 0%,rgba(255,255,255,0.02) 100%); border-top:1px solid rgba(255,255,255,0.20); border-left:1px solid rgba(255,255,255,0.15); border-bottom:1px solid rgba(0,0,0,0.50); border-right:1px solid rgba(0,0,0,0.30); border-radius:14px; padding:20px 22px;">
                                                 <table cellpadding="0" cellspacing="0" border="0">
                                                     <tr><td style="font-family:'Jost',Helvetica,Arial,sans-serif; font-size:9px; font-weight:600; letter-spacing:3px; color:#8b9cc8; text-transform:uppercase; padding-bottom:8px;"><span style="color:#c084fc;">◈</span>&nbsp; Emisor</td></tr>
-                                                    <tr><td style="font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif; font-size:23px; font-weight:400; color:#f0ebff; line-height:1.2;">{name_safe}</td></tr>
+                                                    <tr><td style="font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif; font-size:23px; font-weight:400; color:#f0ebff; line-height:1.2;">[[NOMBRE_USUARIO]]</td></tr>
                                                 </table>
                                             </td>
                                             <td width="6%">&nbsp;</td>
                                             <td width="47%" style="background:linear-gradient(145deg,rgba(6,182,212,0.06) 0%,rgba(255,255,255,0.02) 100%); border-top:1px solid rgba(103,232,249,0.28); border-left:1px solid rgba(103,232,249,0.18); border-bottom:1px solid rgba(0,0,0,0.50); border-right:1px solid rgba(0,0,0,0.30); border-radius:14px; padding:20px 22px;">
                                                 <table cellpadding="0" cellspacing="0" border="0">
                                                     <tr><td style="font-family:'Jost',Helvetica,Arial,sans-serif; font-size:9px; font-weight:600; letter-spacing:3px; color:#8b9cc8; text-transform:uppercase; padding-bottom:8px;"><span style="color:#67e8f9;">◈</span>&nbsp; Coordenadas</td></tr>
-                                                    <tr><td><a href="mailto:{email_safe}" style="font-family:'Jost',Helvetica,Arial,sans-serif; font-size:13px; font-weight:400; color:#7dd3fc; text-decoration:none; word-break:break-all;">{email_safe}</a></td></tr>
+                                                    <tr><td><a href="mailto:[[EMAIL_USUARIO]]" style="font-family:'Jost',Helvetica,Arial,sans-serif; font-size:13px; font-weight:400; color:#7dd3fc; text-decoration:none; word-break:break-all;">[[EMAIL_USUARIO]]</a></td></tr>
                                                 </table>
                                             </td>
                                         </tr>
@@ -461,7 +340,7 @@ def send_message():
                                             <td style="background:#14082e; border-top:1px solid rgba(167,139,250,0.55); border-left:1px solid rgba(167,139,250,0.40); border-bottom:1px solid rgba(20,10,50,0.85); border-right:1px solid rgba(20,10,50,0.65); border-radius:16px; padding:28px 30px 32px;">
                                                 <p style="margin:0 0 16px 0; font-family:'Jost',Helvetica,sans-serif; font-size:9px; letter-spacing:3px; color:#6d7fb8; text-transform:uppercase;">✦ señal decodificada</p>
                                                 <p style="margin:0; font-family:'Cormorant Garamond',Georgia,serif; font-size:18px; font-weight:400; line-height:1.9; color:#ede8ff; letter-spacing:0.3px;">
-                                                    {mensaje_html}
+                                                    [[MENSAJE_USUARIO]]
                                                 </p>
                                             </td>
                                         </tr>
@@ -479,13 +358,137 @@ def send_message():
 </html>
 """
 
-            msg = MIMEMultipart('alternative')
+
+# ============================================================================
+# RUTAS / ENDPOINTS
+# ============================================================================
+
+# ============================================================================
+# SERVIR ARCHIVOS ESTÁTICOS (HTML, CSS, JS, SVG)
+# ============================================================================
+
+@app.route('/')
+def index():
+    """Servir index.html"""
+    try:
+        return send_from_directory(BASE_DIR, 'index.html')
+    except FileNotFoundError:
+        return jsonify({'error': 'index.html no encontrado'}), 404
+
+
+@app.route('/gracias')
+def gracias():
+    """Servir gracias.html (página de éxito)"""
+    try:
+        return send_from_directory(BASE_DIR, 'gracias.html')
+    except FileNotFoundError:
+        return jsonify({'error': 'gracias.html no encontrado'}), 404
+
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    """Servir archivos estáticos (CSS, JS, SVG, etc) con caché optimizado"""
+    try:
+        # Extensiones permitidas
+        allowed_extensions = {'.css', '.js', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.woff', '.woff2', '.ttf', '.eot', '.html'}
+        _, ext = os.path.splitext(filename)
+        
+        if ext.lower() not in allowed_extensions:
+            return jsonify({'error': 'Tipo de archivo no permitido'}), 403
+        
+        # Enviar archivo con headers de cache optimizados
+        response = make_response(send_from_directory(BASE_DIR, filename))
+        
+        # Cache por 1 año para assets inmutables (CSS, JS, fuentes, imágenes)
+        if ext.lower() in {'.css', '.js', '.woff', '.woff2', '.ttf', '.eot', '.svg', '.png', '.jpg', '.jpeg', '.gif'}:
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        # Cache más corto para HTML (validar más frecuentemente)
+        elif ext.lower() == '.html':
+            response.headers['Cache-Control'] = 'public, max-age=300'  # 5 minutos
+        
+        return response
+    except FileNotFoundError:
+        return jsonify({'error': f'Archivo {filename} no encontrado'}), 404
+
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    """
+    Health check endpoint.
+    
+    Verifica que el servidor está activo.
+    
+    Response (200):
+    {
+        "status": "ok",
+        "service": "AbnerFranco.me - Portfolio Backend",
+        "mail_configured": true,
+        "timestamp": "2026-02-26T12:34:56.789..."
+    }
+    """
+    return jsonify({
+        'status': 'ok',
+        'service': 'AbnerFranco.me - Portfolio Backend',
+        'mail_configured': MAIL_OK,
+        'timestamp': datetime.now().isoformat()
+    }), 200
+
+
+@app.route('/api/send-message', methods=['POST'])
+@limiter.limit("5 per minute")  # Máximo 5 mensajes por minuto por IP
+def send_message():
+    """
+    Endpoint para el formulario de contacto con rate limiting y sanitización.
+    Recibe name, email y message y envía un correo al propietario usando la configuración SMTP.
+    """
+    if not MAIL_OK:
+        return jsonify({'error': 'Sistema de correos no configurado en el servidor'}), 503
+        
+    try:
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type debe ser application/json'}), 400
+            
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return jsonify({'error': 'JSON inválido'}), 400
+
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip()
+        message = data.get('message', '').strip()
+        
+        if not name or not email or not message:
+            return jsonify({'error': 'Todos los campos son obligatorios'}), 400
+            
+        if not validate_email(email):
+            return jsonify({'error': 'Email inválido'}), 400
+
+        # Validaciones simples de tamaño para evitar payloads abusivos.
+        if len(name) > 120:
+            return jsonify({'error': 'El nombre es demasiado largo'}), 400
+        if len(email) > 254:
+            return jsonify({'error': 'El email es demasiado largo'}), 400
+        if len(message) > 5000:
+            return jsonify({'error': 'El mensaje excede el límite permitido'}), 400
+
+        # Sanitizar HTML para prevenir inyeccion (escape HTML entities)
+        name_safe = html.escape(name)
+        email_safe = html.escape(email)
+        message_safe = html.escape(message)
+
+        # Convertir saltos de linea para mostrarlos correctamente en HTML.
+        mensaje_html = message_safe.replace('\n', '<br>')
+
+        # Preparar el mensaje HTML que recibira el administrador
+        asunto = f"Nuevo mensaje de tu Portafolio: {name_safe}"
+        html_final = PLANTILLA_COSMOS.replace('[[NOMBRE_USUARIO]]', name_safe).replace('[[EMAIL_USUARIO]]', email_safe).replace('[[MENSAJE_USUARIO]]', mensaje_html)
+
+        msg = MIMEMultipart('alternative')
         msg['From'] = MAIL_USERNAME
         msg['To'] = MAIL_USERNAME  # Recibes el correo en tu misma cuenta
         # Add Reply-To so the admin can easily reply to the user's email
         msg.add_header('reply-to', email)
         msg['Subject'] = asunto
-        msg.attach(MIMEText(html_cuerpo, 'html', 'utf-8'))
+        msg.attach(MIMEText(html_final, 'html', 'utf-8'))
         
         logger.info(f"📧 Procesando mensaje de contacto de: {email}")
         
