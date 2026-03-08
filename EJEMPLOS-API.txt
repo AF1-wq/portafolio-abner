@@ -1,0 +1,387 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║              EJEMPLOS DE CÓDIGO - CÓMO CONSUMIR LA API                    ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+1. CREAR SESIÓN DE CHECKOUT
+═══════════════════════════════════════════════════════════════════════════════
+
+// Desde donde haces el POST en tu script.js
+async function crearCheckout(items) {
+  try {
+    const response = await fetch('/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    });
+
+    const data = await response.json();
+    
+    if (data.url) {
+      window.location.href = data.url;  // Redirige a Stripe
+    } else {
+      console.error('Error:', data.error);
+    }
+  } catch (error) {
+    console.error('Error en checkout:', error);
+  }
+}
+
+// Uso:
+crearCheckout([
+  {
+    name: "Curso de PHP Avanzado",
+    price: "99.99",
+    qty: "1"
+  }
+]);
+
+
+═══════════════════════════════════════════════════════════════════════════════
+2. OBTENER DETALLES DE UNA ORDEN (en success.html)
+═══════════════════════════════════════════════════════════════════════════════
+
+// Detectar el session_id en success.html
+const urlParams = new URLSearchParams(window.location.search);
+const sessionId = urlParams.get('session_id');
+
+if (sessionId) {
+  fetch(`/api/orden/${sessionId}`)
+    .then(res => res.json())
+    .then(orden => {
+      console.log('Detalles de la orden:', orden);
+      
+      // Mostrar en la página
+      document.getElementById('numero-orden').textContent = orden.id;
+      document.getElementById('email').textContent = orden.email;
+      document.getElementById('total').textContent = 
+        `${orden.moneda} ${orden.monto_total.toFixed(2)}`;
+      
+      // Mostrar productos
+      const tabla = document.getElementById('productos');
+      orden.productos.forEach(p => {
+        tabla.innerHTML += `
+          <tr>
+            <td>${p.name}</td>
+            <td>${p.qty}</td>
+            <td>$${parseFloat(p.price).toFixed(2)}</td>
+          </tr>
+        `;
+      });
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+═══════════════════════════════════════════════════════════════════════════════
+3. HISTORIAL DE ÓRDENES DEL CLIENTE
+═══════════════════════════════════════════════════════════════════════════════
+
+// Obtener todas las órdenes de un email
+async function obtenerOrdenes(email) {
+  try {
+    const response = await fetch(`/api/ordenes/${email}`);
+    const ordenes = await response.json();
+    
+    console.log(`${ordenes.length} órdenes encontradas:`, ordenes);
+    
+    ordenes.forEach(orden => {
+      console.log(`
+        Orden #${orden.id}
+        Fecha: ${new Date(orden.fecha_pago).toLocaleDateString('es')}
+        Total: ${orden.moneda} ${orden.monto_total}
+        Estado: ${orden.estado_pago}
+      `);
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+// Uso:
+obtenerOrdenes('cliente@example.com');
+
+
+═══════════════════════════════════════════════════════════════════════════════
+4. ACTUALIZAR success.html CON DETALLES DINÁMICOS
+═══════════════════════════════════════════════════════════════════════════════
+
+Aquí te muestro qué agregar a success.html:
+
+<!-- En el body, reemplaza el contenido estático con contenedores dinámicos: -->
+
+<div class="success-container">
+  <div class="checkmark">✓</div>
+  <h1>¡Pago Exitoso!</h1>
+  <p>Tu compra ha sido confirmada</p>
+
+  <!-- NUEVO: Información dinámica -->
+  <div class="order-details">
+    <p><strong>Número de Orden:</strong> <span id="numero-orden">-</span></p>
+    <p><strong>Email:</strong> <span id="email">-</span></p>
+    <p><strong>Fecha:</strong> <span id="fecha">-</span></p>
+  </div>
+
+  <!-- NUEVO: Tabla de productos -->
+  <table class="productos-table">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio</th>
+      </tr>
+    </thead>
+    <tbody id="productos">
+      <!-- Se llena dinámicamente -->
+    </tbody>
+  </table>
+
+  <!-- NUEVO: Total -->
+  <div class="total-section">
+    <h3>Total: <span id="total">USD 0.00</span></h3>
+  </div>
+
+  <a href="/" class="button">Volver al inicio</a>
+</div>
+
+<!-- NUEVO: Script para cargar datos -->
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionId = urlParams.get('session_id');
+
+  if (sessionId) {
+    fetch(`/api/orden/${sessionId}`)
+      .then(res => res.json())
+      .then(orden => {
+        // Llenar campos
+        document.getElementById('numero-orden').textContent = orden.id;
+        document.getElementById('email').textContent = orden.email;
+        document.getElementById('fecha').textContent = 
+          new Date(orden.fecha_pago).toLocaleDateString('es');
+
+        // Llenar productos
+        const tbody = document.getElementById('productos');
+        orden.productos.forEach(p => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${p.name}</td>
+              <td>${p.qty}</td>
+              <td>$${parseFloat(p.price).toFixed(2)}</td>
+            </tr>
+          `;
+        });
+
+        // Llenar total
+        document.getElementById('total').textContent = 
+          `${orden.moneda} ${parseFloat(orden.monto_total).toFixed(2)}`;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.querySelector('.success-container').innerHTML = 
+          '<p>Error al cargar los detalles de la orden</p>';
+      });
+  }
+</script>
+
+<!-- NUEVO: CSS para la tabla -->
+<style>
+  .productos-table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+  }
+
+  .productos-table th {
+    background: #f0f0f0;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+  }
+
+  .productos-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .total-section {
+    text-align: right;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #ddd;
+  }
+
+  .order-details {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    text-align: left;
+  }
+
+  .order-details p {
+    margin: 8px 0;
+  }
+</style>
+
+
+═══════════════════════════════════════════════════════════════════════════════
+5. CREAR PÁGINA DE HISTORIAL DE ÓRDENES
+═══════════════════════════════════════════════════════════════════════════════
+
+<!-- ordenes.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mis Órdenes</title>
+  <style>
+    body { font-family: Arial; max-width: 1000px; margin: 0 auto; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #f0f0f0; font-weight: bold; }
+    .no-ordenes { text-align: center; color: #999; padding: 40px; }
+  </style>
+</head>
+<body>
+  <h1>Mis Órdenes</h1>
+
+  <div>
+    <label>Email: </label>
+    <input type="email" id="email-input" placeholder="tu@email.com">
+    <button onclick="buscarOrdenes()">Buscar</button>
+  </div>
+
+  <div id="ordenes-container">
+    <p class="no-ordenes">Ingresa tu email para ver tus órdenes</p>
+  </div>
+
+  <script>
+    function buscarOrdenes() {
+      const email = document.getElementById('email-input').value.trim();
+      
+      if (!email) {
+        alert('Ingresa un email');
+        return;
+      }
+
+      fetch(`/api/ordenes/${email}`)
+        .then(res => res.json())
+        .then(ordenes => {
+          const container = document.getElementById('ordenes-container');
+
+          if (ordenes.length === 0) {
+            container.innerHTML = '<p class="no-ordenes">No hay órdenes para este email</p>';
+            return;
+          }
+
+          let html = `<table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Productos</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+          ordenes.forEach(orden => {
+            const fecha = new Date(orden.fecha_pago).toLocaleDateString('es');
+            const productosTexto = orden.productos
+              .map(p => p.name)
+              .join(', ');
+
+            html += `
+              <tr>
+                <td>#${orden.id}</td>
+                <td>${fecha}</td>
+                <td>${orden.moneda} ${parseFloat(orden.monto_total).toFixed(2)}</td>
+                <td>${orden.estado_pago}</td>
+                <td>${productosTexto}</td>
+              </tr>
+            `;
+          });
+
+          html += '</tbody></table>';
+          container.innerHTML = html;
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('ordenes-container').innerHTML = 
+            '<p style="color: red;">Error al cargar órdenes</p>';
+        });
+    }
+  </script>
+</body>
+</html>
+
+
+═══════════════════════════════════════════════════════════════════════════════
+6. WEBHOOK AUTOMÁTICO - ¿QUÉ SUCEDE?
+═══════════════════════════════════════════════════════════════════════════════
+
+Cuando un cliente completa el pago en Stripe:
+
+1. Stripe envía POST /webhook con:
+   {
+     "type": "checkout.session.completed",
+     "data": {
+       "object": {
+         "id": "cs_test_abc123...",
+         "customer_details": {
+           "email": "cliente@example.com",
+           "name": "Juan Pérez"
+         },
+         "line_items": [...],
+         "amount_total": 9999,  // En centavos!
+         "currency": "usd"
+       }
+     }
+   }
+
+2. Mi server.js:
+   ✓ Verifica la firma (seguridad)
+   ✓ Expande line_items para detalles
+   ✓ Guarda en BD: INSERT INTO ordenes
+   ✓ Envía email SMTP con confirmación
+   ✓ Responde 200 OK a Stripe
+
+3. Cliente recibe email con:
+   - Número de orden
+   - Comprobante de pago
+   - Listado de productos
+   - Monto total
+   - Link a su historial
+
+
+═══════════════════════════════════════════════════════════════════════════════
+7. TESTEAR CON JSON DE PRUEBA
+═══════════════════════════════════════════════════════════════════════════════
+
+// Console en navegador (para probar endpoint)
+
+// Test crear checkout
+fetch('/create-checkout-session', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    items: [
+      { name: "Producto Test", price: "49.99", qty: "1" }
+    ]
+  })
+})
+.then(r => r.json())
+.then(d => console.log(d));
+
+// Test obtener orden (reemplaza session_id)
+fetch('/api/orden/cs_test_abc123...')
+  .then(r => r.json())
+  .then(d => console.log(d));
+
+// Test historial por email
+fetch('/api/ordenes/test@example.com')
+  .then(r => r.json())
+  .then(d => console.log(d));

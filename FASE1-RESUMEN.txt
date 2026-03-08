@@ -1,0 +1,265 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║          FASE 1 IMPLEMENTADA - RESUMEN TÉCNICO                            ║
+║          Webhook + SQLite + Email                                         ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+📋 VARIABLES DE .env REQUERIDAS
+═══════════════════════════════════════════════════════════════════════════════
+
+STRIPE:
+────────
+STRIPE_SECRET_KEY=sk_test_51T36GXD6TqhXLrG4e0FmYn41XNm4YeHjNKg1a5Z6g8RBeZJmtfCyDngUxiy7vXQ4SbcAOfzS5Xv9KH8TATOY1Wc6008y8lp6Pu
+│
+└─ Valida que esté en .env ✓ (ya tienes)
+
+STRIPE_WEBHOOK_SECRET=whsec_test_...
+│
+├─ OPCIÓN 1 (Desarrollo local):
+│  └─ Valida con Stripe CLI: `stripe listen --forward-to localhost:4242/webhook`
+│
+└─ OPCIÓN 2 (Endpoint permanente):
+   └─ Crea en: https://dashboard.stripe.com/webhooks
+      Evento: checkout.session.completed
+
+SMTP (EMAIL):
+─────────────
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=contacto@abnerfranco.me
+SMTP_PASSWORD=tu_contraseña_app_aqui
+SMTP_FROM_NAME=AbnerF Portfolio
+
+├─ ¿Cómo obtener SMTP_PASSWORD?
+│  1. Ve a https://myaccount.google.com/apppasswords
+│  2. Selecciona: Correo, Windows, te dará 16 caracteres
+│  3. Pega en SMTP_PASSWORD
+│
+└─ Si usas otro proveedor:
+   SendGrid: SMTP_HOST=smtp.sendgrid.net, SMTP_USER=apikey
+   Resend: usa su API directamente
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🏗️ ARQUITECTURA IMPLEMENTADA
+═══════════════════════════════════════════════════════════════════════════════
+
+FLUJO DE PAGO COMPLETADO:
+──────────────────────────
+
+1. Cliente compra en index.html
+   └─ POST /create-checkout-session
+      └─ Redirige a Stripe checkout
+
+2. Cliente paga con tarjeta en Stripe
+   └─ Stripe envía evento a /webhook
+
+3. WEBHOOK RECIBE checkout.session.completed
+   └─ Construye y verifica firma (seguridad)
+   └─ Expande line_items para obtener detalles
+   └─ Llama guardarOrden() en db.js
+   └─ Llama enviarConfirmacionPago() en email.js
+   └─ Cliente recibe email automáticamente
+
+4. Cliente es redirigido a success.html
+   └─ Próximamente: muestra detalles de la orden
+
+
+ARCHIVOS CLAVE:
+─────────────
+
+server.js
+├─ Rutas principales
+├─ POST /webhook ← NUEVA (verifica pagos)
+├─ POST /create-checkout-session
+├─ GET /api/orden/:sessionId ← NUEVA
+├─ GET /api/ordenes/:email ← NUEVA (para historial)
+└─ POST /send-message
+
+db.js ← NUEVO
+├─ initDatabase() - Crea tabla ordenes
+├─ guardarOrden() - Inserta orden completada
+├─ obtenerOrdenPorSession() - Por ID de sesión
+├─ obtenerOrdenesPorEmail() - Historial del cliente
+├─ obtenerTodasLasOrdenes() - Para admin
+└─ actualizarEstadoPago() - Cambiar estado
+
+email.js ← NUEVO
+├─ enviarConfirmacionPago() - Email HTML bonito
+└─ enviarRecordatorioPaymentIntent() - Email pendiente
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📊 TABLA DE BASE DE DATOS (SQLite)
+═══════════════════════════════════════════════════════════════════════════════
+
+CREATE TABLE ordenes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  stripe_session_id TEXT UNIQUE NOT NULL,
+  stripe_customer_id TEXT,
+  email TEXT NOT NULL,
+  nombre_cliente TEXT,
+  productos TEXT NOT NULL,  ← JSON array stringificado
+  monto_total REAL NOT NULL,
+  moneda TEXT DEFAULT 'USD',
+  estado_pago TEXT DEFAULT 'pendiente',
+  metodo_pago TEXT DEFAULT 'card',
+  fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+  fecha_pago DATETIME,
+  notas TEXT
+);
+
+EJEMPLO DE REGISTRO:
+────────────────────
+id: 1
+stripe_session_id: cs_test_abc123...
+email: cliente@example.com
+nombre_cliente: Juan Pérez
+productos: [{"name":"Curso PHP","price":"99.99","qty":"1"}]
+monto_total: 99.99
+moneda: USD
+estado_pago: completado
+fecha_creacion: 2026-02-22 14:30:00
+fecha_pago: 2026-02-22 14:31:00
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🔧 ENDPOINTS API
+═══════════════════════════════════════════════════════════════════════════════
+
+POST /create-checkout-session
+────────────────────────────
+Crea sesión de pago de Stripe
+
+Request:
+{
+  "items": [
+    {
+      "name": "Curso PHP",
+      "price": "99.99",
+      "qty": "1"
+    }
+  ]
+}
+
+Response:
+{ "url": "https://checkout.stripe.com/pay/..." }
+
+
+POST /webhook
+─────────────
+Escucha eventos de Stripe (automático)
+
+Evento: checkout.session.completed
+Acción:
+  1. Verifica firma (seguridad)
+  2. Obtiene detalles de pago
+  3. Guarda orden en BD
+  4. Envía email de confirmación
+
+
+GET /api/orden/:sessionId
+─────────────────────────
+Obtiene detalles de una orden
+
+Response:
+{
+  "id": 1,
+  "stripe_session_id": "cs_test_abc123...",
+  "email": "cliente@example.com",
+  "productos": [...],
+  "monto_total": 99.99,
+  "estado_pago": "completado",
+  "fecha_pago": "2026-02-22 14:31:00"
+}
+
+
+GET /api/ordenes/:email
+──────────────────────
+Obtiene historial de órdenes del cliente
+
+Response:
+[
+  { orden 1 },
+  { orden 2 },
+  { orden 3 }
+]
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🚨 SEGURIDAD IMPLEMENTADA
+═══════════════════════════════════════════════════════════════════════════════
+
+✓ Verificación de firma de webhook (evita pedidos fake)
+✓ Archivos sensibles bloqueados (.env, server.js, ordenes.db)
+✓ Raw body para webhook (antes de JSON parser)
+✓ CORS configurado
+✓ Validación de datos en cada endpoint
+✓ Email en JWT/validación en futuro (FASE 2)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📚 DEPENDENCIAS INSTALADAS
+═══════════════════════════════════════════════════════════════════════════════
+
+Nuevas:
+  sqlite3@5.1.6      → BD local
+  nodemailer@6.9.7   → Email SMTP
+
+Existentes:
+  express@4.18.2     → Servidor web
+  cors@2.8.5         → Cross-origin
+  stripe@14.10.0     → Payments API
+  dotenv@16.3.1      → Variables env
+
+
+═══════════════════════════════════════════════════════════════════════════════
+✅ CHECKLIST: QUÉ ESTÁ LISTO
+═══════════════════════════════════════════════════════════════════════════════
+
+WEBHOOK:
+[X] Escucha evento checkout.session.completed
+[X] Verifica firma de Stripe (seguridad)
+[X] Procesa sesión y obtiene detalles
+[X] Maneja errores correctamente
+
+BASE DE DATOS:
+[X] Tabla ordenes creada automáticamente
+[X] Guarda cliente, email, productos, monto
+[X] Registra fechas de creación y pago
+[X] Estados de pago (pendiente/completado)
+[X] JSON serializado para productos
+
+EMAIL:
+[X] Transporter SMTP configurado
+[X] Email HTML bonito y responsivo
+[X] Incluye detalles de productos
+[X] Maneja errores si falla SMTP
+
+ENDPOINTS:
+[X] POST /webhook - procesa pagos
+[X] GET /api/orden/:sessionId - detalles
+[X] GET /api/ordenes/:email - historial
+[X] POST /create-checkout-session - checkout
+
+LOGS:
+[X] Muestra estado de BD
+[X] Muestra estado SMTP
+[X] Logs detallados por webhook
+[X] Mensajes de error claros
+
+
+═══════════════════════════════════════════════════════════════════════════════
+⚡ PRÓXIMA FASE 2 (cuando quieras)
+═══════════════════════════════════════════════════════════════════════════════
+
+[ ] Actualizar success.html para obtener detalles vía /api/orden/:sessionId
+[ ] Crear login/registro de usuario
+[ ] Crear panel "Mis Órdenes" que consuma /api/ordenes/:email
+[ ] Descargas de productos (si son digitales)
+[ ] Panel admin (ver todas las órdenes)
+[ ] Apple Pay + Google Pay
+[ ] Cupones de descuento
+[ ] Reembolsos parciales

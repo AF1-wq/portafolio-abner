@@ -1,0 +1,28 @@
+# ⚡ INICIO RÁPIDO
+
+## 🎯 PARA VERLO AHORA (0 instalación)
+
+1. **Haz doble clic** en `portfolio.html`
+2. ¡Listo! ✅
+
+---
+
+## 💳 PARA PAGOS REALES
+
+1. Lee: **INSTALAR-NODEJS.md**
+2. Instala Node.js
+3. `npm install`
+4. `npm start`
+
+---
+
+## ❓ ¿Node.js instalado?
+
+Ejecuta:
+```cmd
+verificar-nodejs.bat
+```
+
+---
+
+**Todo funciona sin Node.js en modo DEMO** 🎨
