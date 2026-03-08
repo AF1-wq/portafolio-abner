@@ -57,7 +57,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # ============================================================================
 # La app corre detrás del proxy de Heroku, por lo que necesitamos ProxyFix
 # para que Flask reconozca correctamente el esquema HTTPS original
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 # ============================================================================
 # SEGURIDAD Y RENDIMIENTO
@@ -79,32 +79,21 @@ Compress(app)
 # ============================================================================
 # CONFIGURACIÓN DE SEGURIDAD CON TALISMAN
 # ============================================================================
-# En producción (Heroku), forzamos HTTPS y HSTS
-# En desarrollo (localhost), permitimos HTTP
-is_production = os.getenv('FLASK_ENV') == 'production' or 'herokuapp.com' in os.getenv('SERVER_NAME', '')
+# Solo activar endurecimiento HTTPS en producción para evitar bucles locales
+# y mantener el frontend existente sin bloqueo por CSP.
+FLASK_ENV = os.getenv('FLASK_ENV', 'development').lower()
+is_production = FLASK_ENV == 'production'
 
-csp = {
-    'default-src': ["'self'"],
-    'script-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
-    'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
-    'font-src': ["'self'", 'https://fonts.gstatic.com', 'data:'],
-    'img-src': ["'self'", 'data:', 'https://images.unsplash.com', 'https://'],
-    'connect-src': ["'self'"],
-}
-
-Talisman(
-    app,
-    force_https=is_production,  # Fuerza HTTPS SOLO en producción
-    strict_transport_security=is_production,  # Habilita HSTS SOLO en producción
-    strict_transport_security_max_age=31536000 if is_production else None,  # 1 año en producción
-    content_security_policy=None if is_production else csp,  # Sin CSP restrictiva en producción
-    content_security_policy_noncompliant_list_prefix='unsafe-inline' if not is_production else None,
-    feature_policy={
-        'geolocation': "'none'",
-        'microphone': "'none'",
-        'camera': "'none'",
-    }
-)
+if is_production:
+    Talisman(
+        app,
+        force_https=True,
+        strict_transport_security=True,
+        strict_transport_security_max_age=31536000,
+        strict_transport_security_include_subdomains=True,
+        strict_transport_security_preload=True,
+        content_security_policy=None,
+    )
 
 # Rate Limiting para prevenir abuso
 limiter = Limiter(
@@ -119,7 +108,6 @@ limiter = Limiter(
 # ============================================================================
 
 FLASK_SECRET_KEY = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key-change-in-production')
-FLASK_ENV = os.getenv('FLASK_ENV', 'development')
 
 # Credenciales de Gmail para envío de correos
 MAIL_USERNAME = os.getenv('MAIL_USERNAME')
