@@ -268,17 +268,17 @@ def send_message():
         if len(message) > 5000:
             return jsonify({'error': 'El mensaje excede el límite permitido'}), 400
             
-                # Sanitizar HTML para prevenir inyección (escape HTML entities)
-                name_safe = html.escape(name)
-                email_safe = html.escape(email)
-                message_safe = html.escape(message)
+            # Sanitizar HTML para prevenir inyección (escape HTML entities)
+            name_safe = html.escape(name)
+            email_safe = html.escape(email)
+            message_safe = html.escape(message)
 
-                # Convertir saltos de línea para mostrarlos correctamente en HTML.
-                mensaje_html = message_safe.replace('\n', '<br>')
+            # Convertir saltos de línea para mostrarlos correctamente en HTML.
+            mensaje_html = message_safe.replace('\n', '<br>')
 
-                # Preparar el mensaje HTML que recibirá el administrador
-                asunto = f"Nuevo mensaje de tu Portafolio: {name_safe}"
-                html_cuerpo = f"""<!DOCTYPE html>
+            # Preparar el mensaje HTML que recibirá el administrador
+            asunto = f"Nuevo mensaje de tu Portafolio: {name_safe}"
+            html_cuerpo = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -479,7 +479,7 @@ def send_message():
 </html>
 """
 
-                msg = MIMEMultipart('alternative')
+            msg = MIMEMultipart('alternative')
         msg['From'] = MAIL_USERNAME
         msg['To'] = MAIL_USERNAME  # Recibes el correo en tu misma cuenta
         # Add Reply-To so the admin can easily reply to the user's email
