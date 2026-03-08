@@ -28,6 +28,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_compress import Compress
 from flask_talisman import Talisman
+from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -52,6 +53,13 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ============================================================================
+# PROXY FIX PARA HEROKU (Critical)
+# ============================================================================
+# La app corre detrás del proxy de Heroku, por lo que necesitamos ProxyFix
+# para que Flask reconozca correctamente el esquema HTTPS original
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
+
+# ============================================================================
 # SEGURIDAD Y RENDIMIENTO
 # ============================================================================
  # Configurar CORS de forma segura (solo orígenes específicos en producción)
@@ -68,8 +76,13 @@ CORS(app, origins=allowed_origins, supports_credentials=True)
 # Compresión gzip automática para mejorar rendimiento
 Compress(app)
 
-# Headers de seguridad (HSTS, CSP, X-Frame-Options, etc.)
-# Configuración flexible para desarrollo local con archivos estáticos
+# ============================================================================
+# CONFIGURACIÓN DE SEGURIDAD CON TALISMAN
+# ============================================================================
+# En producción (Heroku), forzamos HTTPS y HSTS
+# En desarrollo (localhost), permitimos HTTP
+is_production = os.getenv('FLASK_ENV') == 'production' or 'herokuapp.com' in os.getenv('SERVER_NAME', '')
+
 csp = {
     'default-src': ["'self'"],
     'script-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
@@ -81,9 +94,11 @@ csp = {
 
 Talisman(
     app,
-    force_https=False,  # TODO: Cambiar a True en producción con HTTPS
-    strict_transport_security=False,  # TODO: Habilitar en producción
-    content_security_policy=csp,
+    force_https=is_production,  # Fuerza HTTPS SOLO en producción
+    strict_transport_security=is_production,  # Habilita HSTS SOLO en producción
+    strict_transport_security_max_age=31536000 if is_production else None,  # 1 año en producción
+    content_security_policy=None if is_production else csp,  # Sin CSP restrictiva en producción
+    content_security_policy_noncompliant_list_prefix='unsafe-inline' if not is_production else None,
     feature_policy={
         'geolocation': "'none'",
         'microphone': "'none'",

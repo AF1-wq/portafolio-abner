@@ -292,6 +292,12 @@ function closeOverlays() {
   document.getElementById('overlay').classList.remove('show');
 }
 
+// Función mejorada para validar email
+function isValidEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email.toLowerCase());
+}
+
 async function handleContactSubmit(event) {
   event.preventDefault();
   const form = event.target;
@@ -305,34 +311,48 @@ async function handleContactSubmit(event) {
   const email = emailInput?.value?.trim() || '';
   const message = messageInput?.value?.trim() || '';
 
-  // Validación de campos
-  if (!name) {
-    alert('❌ Por favor ingresa tu nombre');
+  // Validación de campos con mensajes específicos
+  if (!name || name.length < 2) {
+    alert('❌ Por favor ingresa un nombre válido (mínimo 2 caracteres)');
+    nameInput?.focus();
     return;
   }
-  if (!email) {
-    alert('❌ Por favor ingresa tu email');
+  if (!email || !isValidEmail(email)) {
+    alert('❌ Por favor ingresa una dirección de email válida');
+    emailInput?.focus();
     return;
   }
-  if (!message) {
-    alert('❌ Por favor escribe un mensaje');
+  if (!message || message.length < 10) {
+    alert('❌ Por favor escribe un mensaje (mínimo 10 caracteres)');
+    messageInput?.focus();
     return;
   }
 
-  // Mostrar loading en botón
+  // Obtener botón y guardar estado original
   const sendBtn = document.getElementById('sendBtn');
   const originalText = sendBtn.textContent;
+  const originalBg = sendBtn.style.background;
+  
+  // Deshabilitar botón y mostrar estado de carga
   sendBtn.disabled = true;
+  sendBtn.style.pointerEvents = 'none';
   sendBtn.textContent = '⏳ Enviando...';
+  sendBtn.style.opacity = '0.7';
 
   try {
-    // Timeout de 15 segundos para prevenir esperas indefinidas
+    // Configurar timeout de 15 segundos para la petición
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, 15000);
 
+    // Realizar petición fetch con manejo robusto
     const response = await fetch('/api/send-message', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
       body: JSON.stringify({
         name: name,
         email: email,
@@ -341,39 +361,75 @@ async function handleContactSubmit(event) {
       signal: controller.signal
     });
 
+    // Limpiar timeout si la respuesta llegó a tiempo
     clearTimeout(timeoutId);
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Error al enviar el mensaje');
+    // Intentar parsear JSON
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      console.error('❌ Error al parsear respuesta JSON:', parseError);
+      throw new Error('Respuesta del servidor inválida');
     }
 
-    // Éxito
+    // Verificar si la respuesta fue exitosa
+    if (!response.ok) {
+      throw new Error(data.error || `Error del servidor: ${response.status}`);
+    }
+
+    // ✓ ÉXITO: Mensaje enviado correctamente
     sendBtn.style.background = '#16a34a';
     sendBtn.textContent = '✓ ¡Mensaje enviado! Gracias.';
+    sendBtn.style.opacity = '1';
+    
+    // Limpiar formulario
     form.reset();
+    nameInput?.focus();
 
-    // Restaurar después de 4 segundos
+    // Restaurar botón después de 4 segundos
     setTimeout(() => {
-      sendBtn.style.background = '';
+      sendBtn.style.background = originalBg;
       sendBtn.textContent = originalText;
+      sendBtn.style.opacity = '1';
       sendBtn.disabled = false;
+      sendBtn.style.pointerEvents = 'auto';
     }, 4000);
 
   } catch (error) {
     console.error('❌ Error en contacto:', error);
     
+    // Determinar tipo de error y proporcionar mensaje específico
+    let errorMessage = 'Error desconocido';
+
     if (error.name === 'AbortError') {
-      alert('❌ Timeout: El servidor tardó demasiado en responder. Por favor, inténtalo de nuevo.');
+      errorMessage = '❌ Timeout: El servidor tardó demasiado en responder (>15s).\n\nPor favor, inténtalo de nuevo. Si el problema persiste, verifica tu conexión o contacta directamente.';
+    } else if (error instanceof TypeError && error.message.includes('fetch')) {
+      errorMessage = '❌ Error de conexión: No se puede conectar al servidor.\n\nAsegúrate de que:\n- El servidor Flask está ejecutándose\n- Tienes conexión a internet\n- El dominio es accesible';
+    } else if (error.message.includes('JSON')) {
+      errorMessage = '❌ Error de respuesta del servidor (formato inválido).\n\nPor favor, inténtalo de nuevo.';
     } else {
-      alert(`❌ Error: ${error.message}\n\nAsegúrate de que el servidor Flask está ejecutándose en http://localhost:5000`);
+      errorMessage = `❌ Error: ${error.message}`;
     }
+
+    alert(errorMessage);
     
-    sendBtn.style.background = '';
-    sendBtn.textContent = originalText;
+    // Restaurar botón a estado normal para permitir reintento
+    sendBtn.style.background = '#ff6b6b'; // Mostrar que hubo error
+    sendBtn.textContent = '↻ Reintentar';
+    
+    setTimeout(() => {
+      sendBtn.style.background = originalBg;
+      sendBtn.textContent = originalText;
+      sendBtn.disabled = false;
+      sendBtn.style.pointerEvents = 'auto';
+      sendBtn.style.opacity = '1';
+    }, 3000);
+
   } finally {
+    // Asegurar que el botón siempre sea habilitado y visible
     sendBtn.disabled = false;
+    sendBtn.style.pointerEvents = 'auto';
   }
 }
 
