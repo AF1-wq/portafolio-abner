@@ -20,6 +20,7 @@ import os
 import logging
 import smtplib
 import html
+import threading
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask import Flask, request, jsonify, send_from_directory, make_response
@@ -158,6 +159,19 @@ def validate_email(email):
         return False
     
     return True
+
+
+def send_async_email(msg, email_address):
+    """Envía el correo de forma asíncrona para no bloquear el hilo principal de Flask."""
+    try:
+        logger.info(f"📧 Iniciando hilo de envío SMTP para: {email_address}...")
+        with smtplib.SMTP('smtp.gmail.com', 587, timeout=15) as servidor:
+            servidor.starttls()
+            servidor.login(str(MAIL_USERNAME), str(MAIL_PASSWORD))
+            servidor.send_message(msg)
+        logger.info(f"✅ Mensaje reenviado de {email_address} con éxito (Segundo Plano)")
+    except Exception as e:
+        logger.error(f"❌ Error SMTP en segundo plano: {str(e)}")
 
 
 PLANTILLA_COSMOS = """<!DOCTYPE html>
@@ -493,21 +507,14 @@ def send_message():
         msg['Subject'] = asunto
         msg.attach(MIMEText(html_final, 'html', 'utf-8'))
         
-        logger.info(f"📧 Procesando mensaje de contacto de: {email}")
+        logger.info(f"⏳ Delegando envío de correo a hilo secundario para: {email}")
         
-        # Conectar con timeout para prevenir cuelgues indefinidos
-        with smtplib.SMTP('smtp.gmail.com', 587, timeout=10) as servidor:
-            servidor.starttls()
-            servidor.login(str(MAIL_USERNAME), str(MAIL_PASSWORD))
-            servidor.send_message(msg)
-            
-        logger.info("✅ Mensaje de contacto enviado con éxito")
+        # En vez de bloquear Flask, iniciamos un Thread para negociar el SMTP
+        hilo_envio = threading.Thread(target=send_async_email, args=(msg, email))
+        hilo_envio.start()
         
-        return jsonify({'success': True, 'message': 'Mensaje enviado exitosamente'}), 200
+        return jsonify({'success': True, 'message': 'Mensaje procesado exitosamente'}), 200
         
-    except smtplib.SMTPException as e:
-        logger.error(f"❌ Error SMTP al mandar contacto: {str(e)}")
-        return jsonify({'error': 'Error enviando el correo. Intenta de nuevo.'}), 500
     except Exception as e:
         logger.exception(f"❌ Error en send_message: {str(e)}")
         return jsonify({'error': 'Error interno procesando el mensaje'}), 500

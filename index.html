@@ -20,14 +20,17 @@
     }
 
     :root {
-      --bg: #fafaf8;
-      --surface: #f3f1ee;
-      --card: #ffffff;
-      --card2: #f7f5f2;
-      --border: rgba(0, 0, 0, 0.07);
-      --text: #141414;
-      --muted: #8a8580;
-      --green-text: #16a34a;
+      --bg: radial-gradient(circle at center, #f5f3ff 0%, #e0f2fe 100%);
+      --surface: rgba(255, 255, 255, 0.05);
+      --card: rgba(255, 255, 255, 0.1);
+      --border: rgba(255, 255, 255, 0.15);
+      --text: #2d3748;
+      --muted: #718096;
+      --accent: #4ade80;
+      --green-text: #4ade80;
+      --chem-shadow: rgba(66, 153, 225, 0.1);
+      --edge-glow: rgba(180, 208, 255, 0.34);
+      --edge-soft: rgba(255, 255, 255, 0.62);
       --r: 20px;
       --r-lg: 32px;
       --r-xl: 44px;
@@ -49,6 +52,15 @@
       -webkit-font-smoothing: antialiased
     }
 
+    h1,
+    h2 {
+      color: var(--text);
+    }
+
+    p {
+      color: var(--muted);
+    }
+
     body::before {
       content: '';
       position: fixed;
@@ -64,7 +76,7 @@
     #cur {
       width: 10px;
       height: 10px;
-      background: var(--text);
+      background: #2d3748;
       border-radius: 50%;
       position: fixed;
       top: 0;
@@ -79,7 +91,7 @@
     #curRing {
       width: 38px;
       height: 38px;
-      border: 1px solid rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(45, 55, 72, 0.45);
       border-radius: 50%;
       position: fixed;
       top: 0;
@@ -127,7 +139,7 @@
     body:has(button:hover) #curRing {
       width: 52px;
       height: 52px;
-      border-color: rgba(0, 0, 0, 0.12)
+      border-color: rgba(45, 55, 72, 0.8)
     }
 
     ::-webkit-scrollbar {
@@ -152,14 +164,24 @@
       z-index: 500;
       display: flex;
       align-items: center;
-      background: rgba(250, 250, 248, 0.88);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: rgba(255, 255, 255, 0.24);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
       border: 1px solid var(--border);
       border-radius: 99px;
       padding: 6px 8px 6px 6px;
       width: min(900px, 94vw);
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9), 0 8px 32px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      box-shadow: 0 10px 40px 0 rgba(100, 100, 100, 0.15);
+    }
+
+    nav::before {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      pointer-events: none;
     }
 
     .nav-logo {
@@ -219,12 +241,13 @@
       text-decoration: none;
       padding: 7px 13px;
       border-radius: 99px;
-      transition: color .2s, background .2s
+      transition: color .2s, background .2s, box-shadow .2s
     }
 
     .nav-links a:hover {
       color: var(--text);
-      background: rgba(0, 0, 0, 0.04)
+      background: rgba(255, 255, 255, 0.42);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5)
     }
 
     .nav-pill {
@@ -236,8 +259,8 @@
       letter-spacing: 1.2px;
       color: var(--green-text);
       text-transform: uppercase;
-      background: rgba(22, 163, 74, 0.08);
-      border: 1px solid rgba(22, 163, 74, 0.18);
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.24);
       border-radius: 99px;
       padding: 6px 14px;
       flex-shrink: 0
@@ -279,7 +302,7 @@
       position: absolute;
       width: 900px;
       height: 900px;
-      background: radial-gradient(circle, rgba(0, 0, 0, 0.022) 0%, transparent 65%);
+      background: radial-gradient(circle, rgba(192, 132, 252, 0.18) 0%, transparent 65%);
       top: 50%;
       left: 50%;
       transform: translate3d(-50%, -55%, 0);
@@ -351,17 +374,19 @@
       line-height: 0.86;
       letter-spacing: -4px;
       margin-bottom: 28px;
+      text-shadow: 0 6px 22px rgba(45, 55, 72, 0.22), 0 1px 0 rgba(255, 255, 255, 0.65);
       user-select: none
     }
 
     .hero-name .fill {
       display: block;
-      color: var(--text)
+      color: #1f2937
     }
 
     .hero-name .stroke {
       display: block;
-      -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.28);
+      -webkit-text-stroke: 1.8px rgba(45, 55, 72, 0.6);
+      text-shadow: 0 4px 16px rgba(148, 163, 184, 0.26);
       color: transparent
     }
 
@@ -394,6 +419,7 @@
       gap: 8px;
       padding: 12px 24px;
       border-radius: 99px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
       transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s;
       font-weight: 500
     }
@@ -405,18 +431,48 @@
 
     .btn-gold:hover {
       transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18)
+      box-shadow: 0 12px 32px rgba(45, 55, 72, 0.24)
     }
 
     .btn-outline {
-      background: transparent;
+      background: rgba(255, 255, 255, 0.28);
       color: var(--text);
-      border: 1px solid rgba(0, 0, 0, 0.18)
+      border: 1px solid var(--border)
     }
 
     .btn-outline:hover {
       transform: translateY(-3px);
-      background: rgba(0, 0, 0, 0.03)
+      background: rgba(255, 255, 255, 0.46)
+    }
+
+    .bio-card,
+    .skills-card,
+    .proj-card,
+    .badge-card,
+    .tool-card,
+    .contact-left-card,
+    .form-card,
+    .social-card {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .bio-card::after,
+    .skills-card::after,
+    .proj-card::after,
+    .badge-card::after,
+    .tool-card::after,
+    .contact-left-card::after,
+    .form-card::after,
+    .social-card::after {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      border: 1px solid var(--edge-soft);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      pointer-events: none;
+      z-index: 1;
     }
 
     /* MARQUEE */
@@ -453,7 +509,7 @@
     }
 
     .tech-tag:hover {
-      border-color: rgba(0, 0, 0, 0.18);
+      border-color: rgba(255, 255, 255, 0.2);
       color: var(--text)
     }
 
@@ -558,6 +614,9 @@
     .bio-card {
       background: var(--card);
       border: 1px solid var(--border);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 10px 40px 0 rgba(100, 100, 100, 0.15);
       border-radius: var(--r-xl);
       padding: 52px;
       position: relative;
@@ -571,7 +630,7 @@
       right: -100px;
       width: 280px;
       height: 280px;
-      background: radial-gradient(circle, rgba(0, 0, 0, 0.02), transparent 70%);
+      background: radial-gradient(circle, var(--edge-glow), transparent 70%);
       pointer-events: none
     }
 
@@ -590,6 +649,9 @@
     .skills-card {
       background: var(--card);
       border: 1px solid var(--border);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 10px 40px 0 rgba(100, 100, 100, 0.15);
       border-radius: var(--r-xl);
       padding: 52px;
       display: flex;
@@ -623,7 +685,7 @@
 
     .sk-bar {
       height: 2px;
-      background: rgba(0, 0, 0, 0.07);
+      background: rgba(255, 255, 255, 0.16);
       border-radius: 99px;
       overflow: hidden
     }
@@ -683,15 +745,19 @@
       border-radius: var(--r-lg);
       overflow: hidden;
       position: relative;
-      background: var(--card2);
+      background: var(--card);
       cursor: pointer;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 10px 40px 0 rgba(100, 100, 100, 0.15);
       transition: transform .4s cubic-bezier(.34, 1.3, .64, 1), box-shadow .4s;
       border: 1px solid var(--border)
     }
 
     .proj-card:hover {
       transform: scale(1.025);
-      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.1)
+      box-shadow: 0 22px 50px rgba(115, 147, 200, 0.2);
+      border-color: rgba(255, 255, 255, 0.45)
     }
 
     .proj-card.big {
@@ -720,7 +786,7 @@
     .proj-info {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(10, 10, 10, 0.88) 0%, rgba(10, 10, 10, 0.12) 50%, transparent 100%);
+      background: linear-gradient(to top, rgba(255, 255, 255, 0.84) 0%, rgba(255, 255, 255, 0.28) 54%, transparent 100%);
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -732,7 +798,7 @@
       font-size: 0.54rem;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.55);
+      color: rgba(45, 55, 72, 0.68);
       margin-bottom: 6px
     }
 
@@ -740,7 +806,7 @@
       font-family: var(--ff-display), sans-serif;
       font-size: 1.4rem;
       font-weight: 700;
-      color: #ffffff;
+      color: var(--text);
       line-height: 1.1
     }
 
@@ -751,12 +817,12 @@
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.72);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #ffffff;
+      color: var(--text);
       font-size: 0.9rem;
       opacity: 0;
       transform: translateY(-6px);
@@ -805,8 +871,8 @@
 
     .badge-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 24px 56px rgba(0, 0, 0, 0.07);
-      border-color: rgba(0, 0, 0, 0.12)
+      box-shadow: 0 20px 42px rgba(118, 149, 196, 0.2);
+      border-color: rgba(255, 255, 255, 0.45)
     }
 
     .badge-card:hover::before {
@@ -884,6 +950,9 @@
     .tool-card {
       background: var(--card);
       border: 1px solid var(--border);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 10px 40px 0 rgba(100, 100, 100, 0.15);
       border-radius: var(--r);
       padding: 28px 20px;
       display: flex;
@@ -896,8 +965,8 @@
 
     .tool-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.07);
-      border-color: rgba(0, 0, 0, 0.12)
+      box-shadow: 0 20px 42px rgba(118, 149, 196, 0.2);
+      border-color: rgba(255, 255, 255, 0.45)
     }
 
     .tool-icon {
@@ -919,189 +988,6 @@
       color: var(--muted)
     }
 
-    /* TIENDA */
-    #tienda {
-      background: var(--surface)
-    }
-
-    .shop-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px
-    }
-
-    .shop-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: transform .35s, box-shadow .35s
-    }
-
-    .shop-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.08)
-    }
-
-    .shop-visual {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      background: var(--surface);
-      position: relative;
-      overflow: hidden;
-      border-bottom: 1px solid var(--border)
-    }
-
-    .shop-visual img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: grayscale(10%);
-      transition: transform .5s, filter .5s;
-      display: block
-    }
-
-    .shop-card:hover .shop-visual img {
-      transform: scale(1.03);
-      filter: grayscale(0%)
-    }
-
-    .shop-body {
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      gap: 12px
-    }
-
-    .shop-cat {
-      font-family: var(--ff-mono), monospace;
-      font-size: 0.56rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--green-text)
-    }
-
-    .shop-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text)
-    }
-
-    .shop-desc {
-      font-size: 0.85rem;
-      color: var(--muted);
-      line-height: 1.6;
-      flex: 1
-    }
-
-    .shop-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: auto;
-      padding-top: 16px;
-      border-top: 1px solid var(--border)
-    }
-
-    .shop-price {
-      font-family: var(--ff-serif), serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text)
-    }
-
-    .shop-actions {
-      display: flex;
-      gap: 8px
-    }
-
-    .qty-input {
-      width: 60px;
-      padding: 8px 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      color: var(--text);
-      font-family: var(--ff-mono), monospace;
-      font-size: 0.85rem;
-      transition: border-color .2s
-    }
-
-    .qty-input:focus {
-      outline: none;
-      border-color: rgba(0, 0, 0, 0.2)
-    }
-
-    .add-to-cart-btn {
-      flex: 1;
-      padding: 10px 14px;
-      background: var(--text);
-      border: none;
-      color: #ffffff;
-      border-radius: var(--r);
-      font-family: var(--ff-mono), monospace;
-      font-size: 0.6rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      font-weight: 500;
-      cursor: pointer;
-      transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s
-    }
-
-    .add-to-cart-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12)
-    }
-
-    /* CART */
-    .cart-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 14px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px
-    }
-
-    .cart-item-info h4 {
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 3px
-    }
-
-    .cart-item-info p {
-      font-family: var(--ff-mono), monospace;
-      color: var(--muted);
-      font-size: 0.75rem
-    }
-
-    .cart-item-remove {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 1rem;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      transition: color .2s, background .2s
-    }
-
-    .cart-item-remove:hover {
-      color: #dc2626;
-      background: rgba(220, 38, 38, 0.07)
-    }
-
     /* CONTACTO */
     #contacto {
       background: var(--bg)
@@ -1117,6 +1003,9 @@
     .contact-left-card {
       background: var(--card);
       border: 1px solid var(--border);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 10px 40px 0 rgba(100, 100, 100, 0.15);
       border-radius: var(--r-xl);
       padding: 52px
     }
@@ -1156,9 +1045,9 @@
     }
 
     .social-card:hover {
-      border-color: rgba(0, 0, 0, 0.14);
+      border-color: rgba(255, 255, 255, 0.52);
       transform: translateY(-3px);
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 12px 26px rgba(118, 149, 196, 0.18);
       background: var(--card)
     }
 
@@ -1204,6 +1093,9 @@
     .form-card {
       background: var(--card);
       border: 1px solid var(--border);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 10px 40px 0 rgba(100, 100, 100, 0.15);
       border-radius: var(--r-xl);
       padding: 44px;
       display: flex;
@@ -1241,7 +1133,8 @@
     .ff input:focus,
     .ff textarea:focus {
       outline: none;
-      border-color: rgba(0, 0, 0, 0.2)
+      border-color: rgba(115, 147, 200, 0.55);
+      box-shadow: 0 0 0 4px rgba(180, 208, 255, 0.24)
     }
 
     .ff input::placeholder,
@@ -1252,125 +1145,6 @@
 
     .ff textarea {
       min-height: 120px
-    }
-
-    /* CART DRAWER */
-    #cartDrawer {
-      position: fixed;
-      right: 0;
-      top: 0;
-      width: 100%;
-      max-width: 400px;
-      height: 100vh;
-      background: var(--card);
-      border-left: 1px solid var(--border);
-      box-shadow: -16px 0 60px rgba(0, 0, 0, 0.08);
-      transform: translateX(100%);
-      transition: transform .35s cubic-bezier(.4, 0, .2, 1);
-      z-index: 600;
-      display: flex;
-      flex-direction: column
-    }
-
-    .cart-header {
-      padding: 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center
-    }
-
-    .cart-header h2 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--text)
-    }
-
-    .cart-close {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: var(--muted);
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      transition: color .2s, background .2s
-    }
-
-    .cart-close:hover {
-      color: var(--text);
-      background: var(--surface)
-    }
-
-    #cartItems {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-      background: var(--card)
-    }
-
-    .cart-footer {
-      padding: 24px;
-      border-top: 1px solid var(--border);
-      background: var(--surface)
-    }
-
-    .cart-total-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 16px;
-      align-items: baseline
-    }
-
-    .cart-total-label {
-      font-family: var(--ff-mono), monospace;
-      font-size: 0.6rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted)
-    }
-
-    #cartTotal {
-      font-family: var(--ff-serif), serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--text)
-    }
-
-    .checkout-btn {
-      width: 100%;
-      padding: 14px;
-      background: var(--text);
-      border: none;
-      color: #ffffff;
-      border-radius: var(--r);
-      font-family: var(--ff-mono), monospace;
-      font-size: 0.6rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      font-weight: 500;
-      cursor: pointer;
-      transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s
-    }
-
-    .checkout-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12)
-    }
-
-    #overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(4px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .3s;
-      z-index: 590
     }
 
     @media(max-width:900px) {
@@ -1418,10 +1192,7 @@
       min-height: 260px;
       overflow: hidden;
       border-radius: inherit;
-      /* Fondo: papel de laboratorio, crema cálido */
-      background:
-        radial-gradient(ellipse 80% 55% at 50% 108%, rgba(185,175,155,0.14) 0%, transparent 70%),
-        linear-gradient(168deg, #f5f2ec 0%, #ece8e0 100%);
+      background: radial-gradient(ellipse 85% 60% at 50% 95%, rgba(255, 255, 255, 0.46) 0%, rgba(224, 242, 254, 0.2) 46%, transparent 78%);
       isolation: isolate;
     }
 
@@ -1857,11 +1628,11 @@
       position: absolute;
       bottom: 6px; left: 50%;
       transform: translateX(-50%);
-      width: 96px; height: 13px;
-      background: var(--flask-color, rgba(152,202,238,0.62));
+      width: 112px; height: 18px;
+      background: var(--chem-shadow);
       border-radius: 50%;
-      opacity: 0.15;
-      filter: blur(8px);
+      opacity: 1;
+      filter: blur(16px);
       transition: background 2.4s ease, opacity 2.4s ease;
       z-index: 2;
     }
@@ -1926,7 +1697,6 @@
       <a href="#galeria">Proyectos</a>
       <a href="#logros">Insignias</a>
       <a href="#setup">Herramientas</a>
-      <a href="#tienda">Tienda</a>
       <a href="#contacto">Contacto</a>
     </div>
   </nav>
@@ -2564,14 +2334,6 @@
     </div>
   </section>
 
-  <section id="tienda" class="section">
-    <div class="inner">
-      <div class="sec-eyebrow reveal">Recursos</div>
-      <h2 class="sec-title reveal">Tienda de<br><em>Servicios</em></h2>
-      <div class="product-grid" id="productGrid"></div>
-    </div>
-  </section>
-
   <section id="contacto" class="section">
     <div class="inner">
       <div class="sec-eyebrow reveal">.</div>
@@ -2654,35 +2416,6 @@
       DISEÑADO Y DESARROLLADO POR AbnerF
     </div>
   </footer>
-
-
-
-  <button onclick="toggleCart()"
-    style="position:fixed;bottom:28px;right:28px;width:56px;height:56px;background:var(--card);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.08);z-index:499;transition:transform .3s cubic-bezier(.34,1.56,.64,1),border-color .2s"
-    onmouseenter="this.style.transform='scale(1.1)';this.style.borderColor='rgba(0,0,0,0.14)'"
-    onmouseleave="this.style.transform='';this.style.borderColor=''">
-    🛒
-    <span id="cartCount"
-      style="position:absolute;top:-5px;right:-5px;background:var(--text);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-family:var(--ff-display);font-weight:700;border:2px solid var(--bg)">0</span>
-  </button>
-
-  <div id="cartDrawer">
-    <div class="cart-header">
-      <h2>Carrito</h2>
-      <button class="cart-close" onclick="toggleCart()">✕</button>
-    </div>
-    <div id="cartItems"></div>
-    <div class="cart-footer">
-      <div class="cart-total-row">
-        <span class="cart-total-label">Total</span>
-        <span id="cartTotal">$0.00</span>
-      </div>
-      <button class="checkout-btn" onclick="checkout()">Proceder a Pago →</button>
-    </div>
-  </div>
-
-  <div id="overlay" onclick="closeOverlays()"></div>
-
   <script>
     const cur = document.getElementById('cur'), ring = document.getElementById('curRing');
     let mx = -100, my = -100, rx = -100, ry = -100;
@@ -2769,109 +2502,6 @@
       a.addEventListener('click', e => { e.preventDefault(); document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' }) });
     });
 
-    let cart = [];
-    // # TODO: tienda online pendiente: persistir carrito (session/localStorage o backend) para no perder estado al recargar.
-    // # TODO: tienda online pendiente: migrar productos a backend/DB para evitar editar el HTML en cada cambio de catálogo.
-    const productos = [
-      {
-        id: 1,
-        name: 'Jardín en Flor (Animación)',
-        description: 'Una celebración de la naturaleza y la belleza efímera. Animación premium con pétalos interactivos. Código fuente completo.',
-        price: 5.00,
-        badge: 'COLECCIÓN ESPECIAL',
-        customHTML: `
-          <style>
-            .fr-preview { width: 100%; height: 100%; position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 60%, #fff8f0 0%, #fdebd8 40%, #f5d5c0 100%); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; }
-            .fr-preview::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); opacity: 0.3; pointer-events: none; }
-            .fr-text-box { position: relative; z-index: 2; text-align: center; border: 1px solid rgba(169,80,80,.25); padding: 15px; background: rgba(253, 246, 236, 0.6); backdrop-filter: blur(2px); }
-            .fr-text-box h4 { color: #6b1a2e; font-size: 1.2rem; font-weight: 400; margin-bottom: 5px; line-height: 1; }
-            .fr-text-box em { color: #d4637a; font-style: italic; font-size: 1rem; }
-            .fr-circle { position: absolute; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, #f7d0da 0%, #e8849a 100%); opacity: 0.2; top: -20px; right: -20px; filter: blur(10px); }
-          </style>
-          <div class="fr-preview">
-            <div class="fr-circle"></div>
-            <div class="fr-text-box">
-              <h4>Jardín<br><em>en Flor</em></h4>
-            </div>
-          </div>
-        `
-      }
-    ];
-
-    function renderProducts() {
-      const grid = document.getElementById('productGrid');
-      grid.className = 'shop-grid';
-      grid.innerHTML = '';
-      const frag = document.createDocumentFragment();
-      productos.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'shop-card';
-
-        // Renderiza HTML animado si existe, de lo contrario usa la imagen
-        const visualContent = p.customHTML ? p.customHTML : `<img src="${p.image}" alt="${p.name}" loading="lazy">`;
-
-        div.innerHTML = `
-      <div class="shop-visual">${visualContent}</div>
-      <div class="shop-body">
-        ${p.badge ? `<div class="shop-cat">${p.badge}</div>` : ''}
-        <h3 class="shop-title">${p.name}</h3>
-        <p class="shop-desc">${p.description}</p>
-        <div class="shop-footer">
-          <div class="shop-price">$${p.price.toFixed(2)}</div>
-          <div class="shop-actions">
-            <input type="number" value="1" min="1" class="qty-input" id="qty-${p.id}">
-            <button class="add-to-cart-btn" onclick="addToCart(${p.id},document.getElementById('qty-${p.id}').valueAsNumber)">Añadir</button>
-          </div>
-        </div>
-      </div>`;
-        frag.appendChild(div);
-      });
-      grid.appendChild(frag);
-    }
-
-    function addToCart(productId, quantity) {
-      if (!quantity || quantity < 1) { alert('Por favor selecciona una cantidad válida'); return; }
-      const product = productos.find(p => p.id === productId);
-      if (!product) return;
-      const existing = cart.find(item => item.id === productId);
-      if (existing) { existing.qty += quantity; } else { cart.push({ id: product.id, name: product.name, price: product.price, qty: quantity }); }
-      updateCart();
-    }
-
-    function removeFromCart(productId) { cart = cart.filter(item => item.id !== productId); updateCart(); }
-
-    function updateCart() {
-      const cartItems = document.getElementById('cartItems');
-      const cartCount = document.getElementById('cartCount');
-      const cartTotal = document.getElementById('cartTotal');
-      cartItems.innerHTML = '';
-      let total = 0, count = 0;
-      const frag = document.createDocumentFragment();
-      cart.forEach(item => {
-        total += item.price * item.qty; count += item.qty;
-        const div = document.createElement('div');
-        div.className = 'cart-item';
-        div.innerHTML = `<div class="cart-item-info"><h4>${item.name}</h4><p>$${item.price} × ${item.qty}</p></div><button class="cart-item-remove" onclick="removeFromCart(${item.id})">✕</button>`;
-        frag.appendChild(div);
-      });
-      cartItems.appendChild(frag);
-      cartCount.textContent = count;
-      cartTotal.textContent = `$${total.toFixed(2)}`;
-    }
-
-    function toggleCart() {
-      const e = document.getElementById('cartDrawer'), t = document.getElementById('overlay');
-      const open = e.style.transform === 'translateX(0px)' || e.style.transform === 'translateX(0)';
-      e.style.transform = open ? 'translateX(100%)' : 'translateX(0)';
-      t.style.opacity = open ? '0' : '1';
-      t.style.pointerEvents = open ? 'none' : 'auto';
-    }
-
-    function closeOverlays() {
-      document.getElementById('cartDrawer').style.transform = 'translateX(100%)';
-      const o = document.getElementById('overlay'); o.style.opacity = '0'; o.style.pointerEvents = 'none';
-    }
-
     async function handleContactSubmit(event) {
       event.preventDefault();
       const form = event.target;
@@ -2950,25 +2580,6 @@
       }
     }
 
-    function checkout() {
-      if (!cart || cart.length === 0) {
-        alert('❌ Tu carrito está vacío. Añade productos antes de continuar.');
-        return;
-      }
-
-      // # TODO: checkout pendiente: integrar pasarela de pago (Stripe/PayPal/MercadoPago) con validacion del monto en backend.
-      // # TODO: checkout pendiente: crear orden en servidor con ID transaccional, stock y webhook de confirmacion de pago.
-      // Mostrar mensaje de sistema deshabilitado
-      alert('El sistema de compras automáticas está deshabilitado temporalmente. Por favor, contáctame a través del formulario principal para adquirir este producto.');
-      
-      // Vaciar el carrito
-      cart = [];
-      
-      // Actualizar la interfaz visual del carrito
-      updateCart();
-    }
-
-    document.addEventListener('DOMContentLoaded', () => { renderProducts(); });
   </script>
 
   <script>
@@ -3022,7 +2633,10 @@
 
         if (dot)    dot.style.background  = r.reagent;
         if (label)  label.textContent     = r.name;
-        if (shadow) shadow.style.background = r.initial;
+        if (shadow) {
+          shadow.style.background = 'var(--chem-shadow)';
+          shadow.style.opacity = '0.9';
+        }
 
         /* Graduaciones generadas — 3 tamaños */
         if (scale) {
@@ -3040,13 +2654,19 @@
           titrated = !titrated;
           if (titrated) {
             scene.style.setProperty('--flask-color', r.final);
-            if (shadow) { shadow.style.background = r.final; shadow.style.opacity = '0.22'; }
+            if (shadow) {
+              shadow.style.background = 'var(--chem-shadow)';
+              shadow.style.opacity = '1';
+            }
             if (liq)    liq.style.height = '38%';
             scene.classList.add('is-titrating');
             setTimeout(() => scene.classList.remove('is-titrating'), 600);
           } else {
             scene.style.setProperty('--flask-color', r.initial);
-            if (shadow) { shadow.style.background = r.initial; shadow.style.opacity = '0.15'; }
+            if (shadow) {
+              shadow.style.background = 'var(--chem-shadow)';
+              shadow.style.opacity = '0.9';
+            }
             if (liq)    liq.style.height = '72%';
           }
         }, 7500);
