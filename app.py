@@ -407,7 +407,7 @@ def serve_static(filename):
     """Servir archivos estáticos (CSS, JS, SVG, etc) con caché optimizado"""
     try:
         # Extensiones permitidas
-        allowed_extensions = {'.css', '.js', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.woff', '.woff2', '.ttf', '.eot', '.html'}
+        allowed_extensions = {'.css', '.js', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.woff', '.woff2', '.ttf', '.eot', '.html', '.pdf'}
         _, ext = os.path.splitext(filename)
         
         if ext.lower() not in allowed_extensions:
@@ -416,8 +416,8 @@ def serve_static(filename):
         # Enviar archivo con headers de cache optimizados
         response = make_response(send_from_directory(BASE_DIR, filename))
         
-        # Cache por 1 año para assets inmutables (CSS, JS, fuentes, imágenes)
-        if ext.lower() in {'.css', '.js', '.woff', '.woff2', '.ttf', '.eot', '.svg', '.png', '.jpg', '.jpeg', '.gif'}:
+        # Cache por 1 año para assets inmutables (CSS, JS, fuentes, imágenes, pdf)
+        if ext.lower() in {'.css', '.js', '.woff', '.woff2', '.ttf', '.eot', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.pdf'}:
             response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
         # Cache más corto para HTML (validar más frecuentemente)
         elif ext.lower() == '.html':
