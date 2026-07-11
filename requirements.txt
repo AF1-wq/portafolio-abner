@@ -12,7 +12,8 @@ Flask-Limiter==3.5.0        # Rate limiting para prevenir abuso
 Flask-Compress==1.14        # Compresión gzip automática
 flask-talisman==1.1.0       # Headers de seguridad (CSP, HSTS, etc)
 
-# Variables de Entorno
+# API y Entorno
+requests==2.31.0
 python-dotenv==1.0.0
 
 # Dependencias de Flask
