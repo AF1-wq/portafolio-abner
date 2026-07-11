@@ -1,15 +1,22 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="es">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Abner Franco — Developer</title>
+  <meta property="og:title" content="Abner Franco | Desarrollador Web & Laboratorio Químico" />
+  <meta property="og:description" content="Portafolio profesional: Desarrollo de simuladores web, ciberseguridad, automatización y proyectos interactivos." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://abnerfranco.me" />
+  <meta property="og:image" content="https://abnerfranco.me/assets/img/logo%202.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@0;1&family=Bangers&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap"
     rel="stylesheet">
+  <!-- Markdown parser para las respuestas del chatbot -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     *,
     *::before,
@@ -24,10 +31,9 @@
       --surface: rgba(255, 255, 255, 0.05);
       --card: rgba(255, 255, 255, 0.1);
       --border: rgba(255, 255, 255, 0.15);
-      --text: #2d3748;
+      --text: #1f2937; /* Gris oscuro/Negro */
       --muted: #718096;
-      --accent: #4ade80;
-      --green-text: #4ade80;
+      --accent: #1f2937; 
       --chem-shadow: rgba(66, 153, 225, 0.1);
       --edge-glow: rgba(180, 208, 255, 0.34);
       --edge-soft: rgba(255, 255, 255, 0.62);
@@ -35,7 +41,7 @@
       --r-lg: 32px;
       --r-xl: 44px;
       --ff-display: 'Outfit', sans-serif;
-      --ff-serif: 'Playfair Display', Georgia, serif;
+      --ff-serif: 'Outfit', sans-serif;
       --ff-mono: 'DM Mono', monospace;
     }
 
@@ -48,7 +54,6 @@
       color: var(--text);
       font-family: var(--ff-display), sans-serif;
       overflow-x: hidden;
-      cursor: none;
       -webkit-font-smoothing: antialiased
     }
 
@@ -67,57 +72,13 @@
       inset: 0;
       pointer-events: none;
       z-index: 0;
-      /* Textura de ruido ligera en base64 en lugar de SVG feTurbulence hiper pesado */
       background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAABVVVVaWlpkZGRubm56enqIiIiamprl0v7LAAAARElEQVQ4y2NgQAX8DIypDMEMHAAJoEAWmIEqwsAC0tBFAJWA1MABWEC14ABEAS6BB9AAFUAOQAwEABxYBAqIgoiBIEEQADyBHiET08nZAAAAAElFTkSuQmCC");
       background-repeat: repeat;
       opacity: 0.04;
     }
 
-    #cur {
-      width: 10px;
-      height: 10px;
-      background: #2d3748;
-      border-radius: 50%;
-      position: fixed;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate3d(-50%, -50%, 0);
-      transition: width .2s, height .2s, opacity .2s;
-      will-change: transform
-    }
-
-    #curRing {
-      width: 38px;
-      height: 38px;
-      border: 1px solid rgba(45, 55, 72, 0.45);
-      border-radius: 50%;
-      position: fixed;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      z-index: 9998;
-      transform: translate3d(-50%, -50%, 0);
-      transition: width .3s, height .3s, border-color .3s, opacity .3s;
-      will-change: transform
-    }
-
-    @media (hover: none) and (pointer: coarse) {
-
-      #cur,
-      #curRing {
-        display: none !important;
-      }
-
-      body {
-        cursor: auto !important;
-      }
-    }
-
-    /* Estilo para las nuevas descripciones de proyectos */
     .proj-desc {
-      font-family: var(--ff-sans, sans-serif);
+      font-family: var(--ff-display), sans-serif;
       font-size: 0.8rem;
       color: rgba(255, 255, 255, 0.75);
       margin-top: 8px;
@@ -127,19 +88,6 @@
       line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-    }
-
-    body:has(a:hover) #cur,
-    body:has(button:hover) #cur {
-      width: 5px;
-      height: 5px
-    }
-
-    body:has(a:hover) #curRing,
-    body:has(button:hover) #curRing {
-      width: 52px;
-      height: 52px;
-      border-color: rgba(45, 55, 72, 0.8)
     }
 
     ::-webkit-scrollbar {
@@ -155,7 +103,6 @@
       border-radius: 99px
     }
 
-    /* NAV */
     nav {
       position: fixed;
       top: 16px;
@@ -196,15 +143,27 @@
     }
 
     .nav-avatar {
-      width: 36px;
-      height: 36px;
-      background: #1a8659;
-      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      padding: 2px;
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: 14px;
+      border: 1px solid rgba(31, 41, 55, 0.14);
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      box-shadow: 0 0 0 2px rgba(26, 134, 89, 0.2)
+      box-shadow: 0 8px 18px rgba(31, 41, 55, 0.12)
+    }
+
+    .nav-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      image-rendering: auto;
+      border-radius: 10px;
+      background: transparent;
     }
 
     .nav-avatar svg {
@@ -250,43 +209,6 @@
       box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5)
     }
 
-    .nav-pill {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-family: var(--ff-mono), monospace;
-      font-size: 0.58rem;
-      letter-spacing: 1.2px;
-      color: var(--green-text);
-      text-transform: uppercase;
-      background: rgba(74, 222, 128, 0.1);
-      border: 1px solid rgba(74, 222, 128, 0.24);
-      border-radius: 99px;
-      padding: 6px 14px;
-      flex-shrink: 0
-    }
-
-    .nav-pill span {
-      width: 6px;
-      height: 6px;
-      background: var(--green-text);
-      border-radius: 50%;
-      animation: glow 2s infinite
-    }
-
-    @keyframes glow {
-
-      0%,
-      100% {
-        box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5)
-      }
-
-      50% {
-        box-shadow: 0 0 0 5px rgba(22, 163, 74, 0)
-      }
-    }
-
-    /* HERO */
     #hogar {
       min-height: 100vh;
       display: flex;
@@ -312,15 +234,8 @@
     }
 
     @keyframes breathe {
-
-      0%,
-      100% {
-        transform: translate3d(-50%, -55%, 0) scale(1)
-      }
-
-      50% {
-        transform: translate3d(-50%, -55%, 0) scale(1.1)
-      }
+      0%, 100% { transform: translate3d(-50%, -55%, 0) scale(1) }
+      50% { transform: translate3d(-50%, -55%, 0) scale(1.1) }
     }
 
     .paused .hero-glow {
@@ -346,103 +261,106 @@
       z-index: 1
     }
 
-    .hero-eyebrow {
-      font-family: var(--ff-mono), monospace;
-      font-size: 0.6rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 24px;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px
-    }
-
-    .hero-eyebrow::before,
-    .hero-eyebrow::after {
-      content: '';
-      width: 20px;
-      height: 1px;
-      background: currentColor;
-      opacity: 0.4
-    }
-
+    /* EFECTO TORNASOL NEGRO ANIMADO MUY VISIBLE */
     .hero-name {
       font-family: var(--ff-display), sans-serif;
       font-weight: 900;
       font-size: clamp(5rem, 16vw, 11rem);
       line-height: 0.86;
       letter-spacing: -4px;
-      margin-bottom: 28px;
-      text-shadow: 0 6px 22px rgba(45, 55, 72, 0.22), 0 1px 0 rgba(255, 255, 255, 0.65);
-      user-select: none
+      margin-bottom: 32px;
+      user-select: none;
     }
 
-    .hero-name .fill {
-      display: block;
-      color: #1f2937
-    }
-
+    .hero-name .fill,
     .hero-name .stroke {
       display: block;
-      -webkit-text-stroke: 1.8px rgba(45, 55, 72, 0.6);
-      text-shadow: 0 4px 16px rgba(148, 163, 184, 0.26);
-      color: transparent
+      /* Gradiente que oscila entre negro profundo, toques metálicos, índigo y bronce */
+      background: linear-gradient(
+        -45deg, 
+        #050505 0%, 
+        #2a2a35 25%, 
+        #000000 50%, 
+        #352f2a 75%, 
+        #050505 100%
+      );
+      background-size: 300% 300%;
+      animation: tornasolShine 5s ease-in-out infinite;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      -webkit-text-stroke: 0;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.25));
     }
 
-    .hero-tagline {
-      font-family: var(--ff-serif), serif;
-      font-size: 1.2rem;
-      font-style: italic;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 32px
+    @keyframes tornasolShine {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .hero-cta {
       display: flex;
-      gap: 10px;
+      gap: 20px;
       justify-content: center;
-      flex-wrap: wrap
+      flex-wrap: wrap;
+      margin-top: 10px;
     }
 
-    .btn {
-      font-family: var(--ff-mono), monospace;
-      font-size: 0.6rem;
-      letter-spacing: 2px;
+    /* CLAYMORPHISM PARA BOTONES */
+    .clay-btn {
+      font-family: var(--ff-display), sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
       text-decoration: none;
       border: none;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
+      justify-content: center;
+      padding: 16px 32px;
       border-radius: 99px;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
-      transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s;
-      font-weight: 500
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .clay-dark {
+      background: #1f2937;
+      color: #ffffff;
+      box-shadow: 
+        8px 8px 16px rgba(100, 110, 140, 0.2), 
+        -8px -8px 16px rgba(255, 255, 255, 0.8), 
+        inset 2px 2px 8px rgba(255, 255, 255, 0.2), 
+        inset -3px -3px 8px rgba(0, 0, 0, 0.5);
+    }
+    
+    .clay-dark:hover {
+      transform: scale(0.97);
+      box-shadow: 
+        4px 4px 10px rgba(100, 110, 140, 0.15), 
+        -4px -4px 10px rgba(255, 255, 255, 0.9), 
+        inset 4px 4px 10px rgba(0, 0, 0, 0.6), 
+        inset -4px -4px 10px rgba(255, 255, 255, 0.1);
     }
 
-    .btn-gold {
-      background: var(--text);
-      color: #ffffff
+    .clay-light {
+      background: #f0f4f8;
+      color: #1f2937;
+      box-shadow: 
+        8px 8px 16px rgba(100, 110, 140, 0.15), 
+        -8px -8px 16px rgba(255, 255, 255, 0.9), 
+        inset 2px 2px 8px rgba(255, 255, 255, 1), 
+        inset -3px -3px 8px rgba(0, 0, 0, 0.05);
     }
-
-    .btn-gold:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(45, 55, 72, 0.24)
-    }
-
-    .btn-outline {
-      background: rgba(255, 255, 255, 0.28);
-      color: var(--text);
-      border: 1px solid var(--border)
-    }
-
-    .btn-outline:hover {
-      transform: translateY(-3px);
-      background: rgba(255, 255, 255, 0.46)
+    
+    .clay-light:hover {
+      transform: scale(0.97);
+      box-shadow: 
+        4px 4px 10px rgba(100, 110, 140, 0.1), 
+        -4px -4px 10px rgba(255, 255, 255, 1), 
+        inset 4px 4px 10px rgba(0, 0, 0, 0.1), 
+        inset -4px -4px 10px rgba(255, 255, 255, 0.8);
     }
 
     .bio-card,
@@ -473,58 +391,6 @@
       z-index: 1;
     }
 
-    /* MARQUEE */
-    .hero-tags {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 1100px;
-      overflow: hidden;
-      mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
-      -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent)
-    }
-
-    .tags-inner {
-      display: flex;
-      gap: 8px;
-      animation: slide 24s linear infinite;
-      width: max-content
-    }
-
-    .tech-tag {
-      font-family: var(--ff-mono), monospace;
-      font-size: 0.6rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 99px;
-      padding: 8px 16px;
-      white-space: nowrap;
-      transition: all .3s;
-      will-change: transform
-    }
-
-    .tech-tag:hover {
-      border-color: rgba(255, 255, 255, 0.2);
-      color: var(--text)
-    }
-
-    @keyframes slide {
-      from {
-        transform: translate3d(0, 0, 0)
-      }
-
-      to {
-        transform: translate3d(-50%, 0, 0)
-      }
-    }
-
-    .paused .tags-inner {
-      animation-play-state: paused;
-    }
-
     /* SECTION */
     .section {
       padding: 110px 24px;
@@ -535,26 +401,6 @@
     .inner {
       max-width: 1160px;
       margin: 0 auto
-    }
-
-    .sec-eyebrow {
-      font-family: var(--ff-mono), monospace;
-      font-size: 0.58rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px
-    }
-
-    .sec-eyebrow::before {
-      content: '';
-      width: 28px;
-      height: 1px;
-      background: currentColor;
-      opacity: 0.4
     }
 
     .sec-title {
@@ -585,17 +431,9 @@
       transform: translateY(0)
     }
 
-    .reveal-d1 {
-      transition-delay: .1s
-    }
-
-    .reveal-d2 {
-      transition-delay: .2s
-    }
-
-    .reveal-d3 {
-      transition-delay: .3s
-    }
+    .reveal-d1 { transition-delay: .1s }
+    .reveal-d2 { transition-delay: .2s }
+    .reveal-d3 { transition-delay: .3s }
 
     /* QUIEN SOY */
     #quien {
@@ -691,7 +529,7 @@
     .sk-fill {
       height: 100%;
       border-radius: 99px;
-      background: var(--text);
+      background: var(--text); /* Cero verde */
       transform: scaleX(0);
       transform-origin: left;
       transition: transform 1.3s cubic-bezier(.25, .46, .45, .94) .3s
@@ -701,7 +539,6 @@
       transform: scaleX(1)
     }
 
-    /* PROYECTOS */
     #galeria {
       background: var(--bg)
     }
@@ -780,7 +617,7 @@
       filter: grayscale(0%) brightness(1);
       transform: scale(1.04)
     }
-zzz
+
     .proj-image-container {
       width: 100%;
       height: 100%;
@@ -856,7 +693,6 @@ zzz
       transform: translateY(0)
     }
 
-    /* SETUP */
     #setup {
       background: var(--bg)
     }
@@ -894,16 +730,20 @@ zzz
       line-height: 1
     }
 
+    /* Unificando tipografía de herramientas con el resto del diseño */
     .tool-name {
-      font-size: 0.9rem;
+      font-family: var(--ff-display), sans-serif;
+      font-size: 1rem;
       font-weight: 700;
-      color: var(--text)
+      color: var(--text);
+      letter-spacing: -0.5px;
     }
 
     .tool-cat {
-      font-family: var(--ff-mono), monospace;
-      font-size: 0.56rem;
-      letter-spacing: 1.5px;
+      font-family: var(--ff-display), sans-serif;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 1px;
       text-transform: uppercase;
       color: var(--muted)
     }
@@ -1101,7 +941,7 @@ zzz
         left: 0;
         width: 100%;
         height: 100vh;
-        background: rgba(225, 240, 255, 0.45); /* Tono azul cristalino */
+        background: rgba(225, 240, 255, 0.45);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         z-index: 499;
@@ -1138,7 +978,7 @@ zzz
         transition: color 0.2s;
       }
       .mobile-links a:hover {
-        color: var(--green-text);
+        color: var(--text);
       }
 
       .quien-wrap,
@@ -1635,7 +1475,7 @@ zzz
     .cs-dot {
       width: 6px; height: 6px;
       border-radius: 50%;
-      background: var(--reagent-color, #c8a0c0);
+      background: var(--text); /* Sin verde */
       opacity: 0.62;
       flex-shrink: 0;
       animation: csPulse 3s infinite;
@@ -1664,12 +1504,274 @@ zzz
       38%  { filter: brightness(1.52) saturate(1.42); }
       100% { filter: brightness(1)    saturate(1); }
     }
+
+    /* ─────────────────────────────────────────
+       CHATBOT AI - NUEVO LOGO AF ESTILOS
+    ───────────────────────────────────────── */
+    .ai-chat-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 70px;
+      height: 70px;
+      background: transparent;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 1000;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .ai-chat-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .ai-chat-btn svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* Animaciones del nuevo logo AF dentro del SVG */
+    .af-logo-mark {
+      transform-box: view-box;
+      transform-origin: 200px 265px;
+      will-change: transform;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      animation: afSpin 9s infinite;
+      filter: drop-shadow(0px 20px 40px rgba(0, 0, 0, 0.2));
+    }
+
+    @keyframes afSpin {
+      0% { transform: rotate(0deg); animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
+      20% { transform: rotate(360deg); animation-timing-function: linear; }
+      80% { transform: rotate(360deg); animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
+      100% { transform: rotate(720deg); }
+    }
+
+    .af-logo-letter {
+      font-family: var(--ff-display), sans-serif;
+      font-weight: 900;
+      font-size: 130px;
+      text-anchor: middle;
+      letter-spacing: -2px;
+      transform-box: view-box;
+      will-change: transform, opacity;
+    }
+
+    .af-logo-f {
+      transform-origin: 200px 195px;
+      animation: afTravelF 9s infinite;
+    }
+
+    .af-logo-a {
+      transform-origin: 200px 335px;
+      animation: afTravelA 9s infinite;
+    }
+
+    @keyframes afTravelF {
+      0% { transform: translateY(80px) rotate(-45deg) scale(0.5); opacity: 0; animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+      5% { opacity: 1; }
+      20%, 80% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
+      95% { opacity: 1; }
+      100% { transform: translateY(80px) rotate(45deg) scale(0.5); opacity: 0; }
+    }
+
+    @keyframes afTravelA {
+      0% { transform: translateY(-80px) rotate(-45deg) scale(0.5); opacity: 0; animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+      5% { opacity: 1; }
+      20%, 80% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
+      95% { opacity: 1; }
+      100% { transform: translateY(-80px) rotate(45deg) scale(0.5); opacity: 0; }
+    }
+
+    /* Ventana del chatbot */
+    .ai-chat-window {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      width: 350px;
+      max-width: calc(100vw - 40px);
+      height: 500px;
+      max-height: calc(100vh - 120px);
+      background: var(--card);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px) scale(0.95);
+      transform-origin: bottom right;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .ai-chat-window.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    .ai-header {
+      padding: 16px 20px;
+      background: rgba(255,255,255,0.1);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ai-title {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .ai-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: color 0.2s;
+    }
+
+    .ai-close:hover {
+      color: var(--text);
+    }
+
+    .ai-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .ai-msg {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      word-wrap: break-word;
+      animation: msgIn 0.3s ease forwards;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ai-msg-bot {
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--text);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    
+    .ai-msg-bot p {
+        color: var(--text); 
+        margin-bottom: 8px;
+    }
+    .ai-msg-bot p:last-child {
+        margin-bottom: 0;
+    }
+
+    .ai-msg-user {
+      background: var(--text);
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .ai-footer {
+      padding: 16px;
+      background: rgba(255,255,255,0.1);
+      border-top: 1px solid var(--border);
+    }
+
+    .ai-form {
+      display: flex;
+      gap: 8px;
+    }
+
+    .ai-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.4);
+      font-family: var(--ff-display);
+      font-size: 0.9rem;
+      outline: none;
+      color: var(--text);
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .ai-input:focus {
+      border-color: var(--text);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .ai-send {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--text);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .ai-send:hover {
+      transform: scale(1.05);
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 18px;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      display: none;
+    }
+
+    .typing-indicator span {
+      width: 6px;
+      height: 6px;
+      background: var(--muted);
+      border-radius: 50%;
+      animation: typing 1.4s infinite ease-in-out both;
+    }
+
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes typing {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
   </style>
 </head>
 
 <body>
-  <div id="cur"></div>
-  <div id="curRing"></div>
 
   <div class="mobile-overlay">
     <div class="mobile-links">
@@ -1691,8 +1793,7 @@ zzz
     </button>
     <a href="#hogar" class="nav-logo" style="margin: 0 auto; padding-right: 28px;">
       <div class="nav-avatar">
-        <svg viewBox="0 0 200 200"><text x="100" y="133" font-family="'Outfit',sans-serif" font-size="100"
-            font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="-8">AF</text></svg>
+        <img src="assets/img/logo%202.png" alt="Logo AF">
       </div>
       <span class="nav-name">Abner<em>Franco</em></span>
     </a>
@@ -1709,47 +1810,27 @@ zzz
     <div class="hero-glow"></div>
     <div class="hero-grid reveal">
       <div class="hero-center">
-        <div class="hero-eyebrow">Diseñador web & Analista Quimico</div>
         <h1 class="hero-name">
           <span class="fill">ABNER</span>
           <span class="stroke">FRANCO</span>
         </h1>
-        <p class="hero-tagline">
-          Realidades digitales.<br>
-
-        </p>
         <div class="hero-cta">
-          <a href="#galeria" class="btn btn-gold">Ver mi trabajo</a>
-          <a href="CV.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-outline">Ver CV</a>
+          <a href="#galeria" class="clay-btn clay-dark">Ver mi trabajo</a>
+          <a href="CV.pdf" target="_blank" rel="noopener noreferrer" class="clay-btn clay-light">Ver CV</a>
         </div>
-      </div>
-    </div>
-    <div class="hero-tags reveal reveal-d2">
-      <div class="tags-inner">
-        <span class="tech-tag">PHP</span><span class="tech-tag">MySQL</span><span
-          class="tech-tag">JavaScript</span><span class="tech-tag">HTML / CSS</span><span class="tech-tag">APIs
-          REST</span><span class="tech-tag">UI/UX Design</span><span class="tech-tag">Sistemas Web</span><span
-          class="tech-tag">SQL</span><span class="tech-tag">Google Cloud</span><span class="tech-tag">Git</span>
-        <span class="tech-tag">PHP</span><span class="tech-tag">MySQL</span><span
-          class="tech-tag">JavaScript</span><span class="tech-tag">HTML / CSS</span><span class="tech-tag">APIs
-          REST</span><span class="tech-tag">UI/UX Design</span><span class="tech-tag">Sistemas Web</span><span
-          class="tech-tag">SQL</span><span class="tech-tag">Google Cloud</span><span class="tech-tag">Git</span>
       </div>
     </div>
   </section>
 
   <section id="quien" class="section">
     <div class="inner">
-      <div class="sec-eyebrow reveal">Quién soy</div>
       <h2 class="sec-title reveal">Sobre mí<em></em></h2>
       <div class="quien-wrap">
         <div class="bio-card reveal">
           <p class="bio-text">Soy <strong>Abner Franco</strong>, estudiante de 2° año de Laboratorio Químico y Desarrollador Web.</p>
           <p class="bio-text">He desarrollado simuladores como INSAM Salud, implementando protocolos de ciberseguridad, y cuento con experiencia en el cumplimiento de metas comerciales y gestión de clientes.</p>
 
-          <div class="sec-eyebrow" style="margin-top: 35px; margin-bottom: 15px;">Experiencia Profesional</div>
-
-          <div style="margin-bottom: 20px;">
+          <div style="margin-bottom: 20px; margin-top: 35px;">
             <div style="color: var(--text); font-weight: 700; font-size: 0.95rem;">Crece Centro América S.A.S.V.</div>
             <div style="font-family: var(--ff-mono); font-size: 0.7rem; color: var(--muted); margin-bottom: 8px;">Ejecutivo de Venta</div>
             <p class="bio-text" style="font-size: 0.8rem; margin-bottom: 0;">Asesoría a clientes residenciales logrando metas comerciales y gestión de carteras resolviendo conflictos.</p>
@@ -1761,15 +1842,12 @@ zzz
             <p class="bio-text" style="font-size: 0.8rem; margin-bottom: 0;">Apoyo operativo en proyectos de energía, adaptación a procesos técnicos y normas de seguridad.</p>
           </div>
 
-          <div class="sec-eyebrow" style="margin-bottom: 15px;">Educación</div>
           <div>
             <div style="color: var(--text); font-weight: 700; font-size: 0.95rem;">ITCA-FEPADE</div>
             <div style="font-family: var(--ff-mono); font-size: 0.7rem; color: var(--muted);">Técnico en Laboratorio Químico (2° Año)</div>
           </div>
         </div>
         <div class="skills-card reveal reveal-d1">
-          <div class="sec-eyebrow" style="margin-bottom:24px">Perfil Técnico</div>
-
           <div class="sk-row">
             <div class="sk-head"><span class="sk-name">Laboratorio Químico & Análisis</span></div>
             <div class="sk-bar">
@@ -1808,7 +1886,6 @@ zzz
       <div
         style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;margin-bottom:40px">
         <div>
-          <div class="sec-eyebrow reveal">Mi trabajo</div>
           <h2 class="sec-title reveal" style="margin-bottom:0">Proyectos<em>.</em></h2>
         </div>
         <div class="filter-row reveal reveal-d1">
@@ -1833,7 +1910,7 @@ zzz
           <div class="proj-info" style="position: relative; inset: auto; background: #ffffff; padding: 20px 24px; flex-shrink: 0; border-top: 1px solid rgba(0,0,0,0.05);">
             <div class="proj-tag">SISTEMA MÉDICO / PYTHON / SQL</div>
             <div class="proj-title" style="margin-bottom: 6px;">INSAM SALUD</div>
-            <div style="display: block !important; -webkit-line-clamp: unset !important; max-height: 80px; overflow-y: auto; padding-right: 10px; color: #6C757D; font-size: 0.8rem; line-height: 1.4;">
+            <div style="display: block !important; line-clamp: unset !important; -webkit-line-clamp: unset !important; max-height: 80px; overflow-y: auto; padding-right: 10px; color: #6C757D; font-size: 0.8rem; line-height: 1.4;">
               Plataforma educativa de gestión hospitalaria desarrollada para una institución académica. Permite a los estudiantes simular, aprender y administrar historiales clínicos y flujos médicos reales.
             </div>
           </div>
@@ -1841,42 +1918,69 @@ zzz
           <div class="proj-arrow">↗</div>
         </div>
 
-        <div class="proj-card reveal reveal-d1" data-cat="web">
-          <div class="chem-scene" id="scene2">
-            <div class="cs-stand"></div>
-            <div class="cs-clamp"></div>
-            <div class="cs-burette">
-              <div class="cs-tube"><div class="cs-liquid" id="csLiq2"></div><div class="cs-scale" id="csScale2"></div></div>
-              <div class="cs-cone"></div><div class="cs-cap"></div>
-              <div class="cs-stopcock"><div class="cs-sc-barrel"></div><div class="cs-sc-key"></div></div>
-            </div>
-            <div class="cs-drop-wrap">
-              <div class="cs-drop"></div><div class="cs-splash" id="csSplash2"></div><div class="cs-micro"></div><div class="cs-micro"></div>
-            </div>
-            <div class="cs-flask">
-              <div class="cs-flask-svg">
-                <svg viewBox="0 0 118 124" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M47 35 L24 107 Q26 116 35 118" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M53 40 L34 108" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1" stroke-linecap="round"/>
-                  <path d="M70 40 L93 108" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-linecap="round"/>
-                  <path d="M20 109 Q20 119 59 119 Q98 119 98 109" fill="rgba(255,255,255,0.14)" stroke="rgba(0,0,0,0.055)" stroke-width="0.9"/>
-                  <rect x="46" y="4" width="26" height="31" fill="rgba(255,255,255,0.5)" stroke="rgba(0,0,0,0.065)" stroke-width="1" rx="3"/>
-                  <rect x="48" y="6" width="5" height="25" fill="rgba(255,255,255,0.78)" rx="2.5"/>
-                  <line x1="46" y1="4" x2="72" y2="4" stroke="rgba(0,0,0,0.065)" stroke-width="1.1" stroke-linecap="round"/>
-                  <path d="M45 33 Q59 42 73 33" fill="none" stroke="rgba(0,0,0,0.055)" stroke-width="1"/>
-                  <path d="M45 33 Q59 40 73 33" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.2"/>
-                </svg>
-                <div class="cs-liq-clip"><div class="cs-liq" id="csFlaskLiq2"><div class="cs-bubble" style="width:4px;height:4px;bottom:18%;left:30%;animation-duration:2.5s;--bx: 3px;"></div><div class="cs-bubble" style="width:3px;height:3px;bottom:30%;left:60%;animation-duration:2.1s;--bx:-3px;animation-delay:0.4s;"></div></div></div>
+        <div class="proj-card reveal reveal-d1" data-cat="web" onclick="window.open('https://af1-wq.github.io/Telepromter-By-AF/', '_blank')" style="cursor: pointer;">
+          <style>
+            .tp-container {
+              width: 100%; height: 280px;
+              background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+              display: flex; align-items: center; justify-content: center;
+              position: relative; overflow: hidden; border-radius: 12px 12px 0 0;
+            }
+            .tp-screen {
+              width: 80%; height: 70%;
+              background: rgba(0, 0, 0, 0.4);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              border-radius: 12px;
+              box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 15px 35px rgba(0,0,0,0.5);
+              position: relative; overflow: hidden;
+              -webkit-mask-image: linear-gradient(to bottom, transparent 5%, black 25%, black 75%, transparent 95%);
+              mask-image: linear-gradient(to bottom, transparent 5%, black 25%, black 75%, transparent 95%);
+            }
+            .tp-glass-glare {
+              position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+              background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.05) 48%, rgba(255,255,255,0.1) 50%, transparent 52%);
+              transform: rotate(15deg); pointer-events: none; z-index: 10;
+            }
+            .tp-text {
+              position: absolute; width: 100%; text-align: center;
+              font-family: var(--ff-mono), monospace; font-size: 1.1rem; font-weight: bold; color: #cbd5e1;
+              animation: tpScroll 10s linear infinite;
+            }
+            .tp-text p { margin: 12px 0; color: #38bdf8; text-shadow: 0 0 12px rgba(56,189,248,0.5); }
+            .tp-text p:nth-child(even) { color: #f8fafc; text-shadow: none; }
+            @keyframes tpScroll {
+              0% { transform: translateY(120%); }
+              100% { transform: translateY(-120%); }
+            }
+            .tp-rec {
+              position: absolute; top: 15px; right: 20px;
+              font-family: var(--ff-mono), monospace; font-size: 0.65rem; font-weight: bold;
+              color: #ef4444; display: flex; align-items: center; gap: 6px; letter-spacing: 2px;
+            }
+            .tp-rec .dot {
+              width: 8px; height: 8px; background: #ef4444; border-radius: 50%;
+              box-shadow: 0 0 8px #ef4444;
+              animation: tpBlink 1.5s infinite ease-in-out;
+            }
+            @keyframes tpBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+          </style>
+          <div class="tp-container">
+            <div class="tp-rec"><span class="dot"></span>REC</div>
+            <div class="tp-screen">
+              <div class="tp-glass-glare"></div>
+              <div class="tp-text">
+                <p>Hola a todos</p>
+                <p>Bienvenidos al</p>
+                <p>Telepromter</p>
+                <p>Desarrollado</p>
+                <p>por Abner Franco</p>
               </div>
-              <div class="cs-vapor" style="width:7px;height:7px;bottom:91%;left:40%;animation-duration:2.8s;animation-delay:0.3s;"></div>
             </div>
-            <div class="cs-shadow" id="csShadow2"></div>
-            <div class="cs-badge"><div class="cs-dot" id="csDot2"></div><span class="cs-label" id="csLabel2">—</span></div>
           </div>
           <div class="proj-info">
-            <div class="proj-tag">PYTHON / AUTO</div>
-            <div class="proj-title">Procesamiento Documental</div>
-            <div class="proj-desc">Herramienta automatizada para procesamiento masivo de documentos con análisis de datos, extracción inteligente usando IA y exportación de reportes. Optimizado para reducir tiempos de operación manual.</div>
+            <div class="proj-tag">HERRAMIENTA WEB / JS</div>
+            <div class="proj-title">Telepromter By AF</div>
+            <div class="proj-desc">Aplicación web fluida y personalizable. Ideal para creadores de contenido, permitiendo ajustar velocidad y tamaño de texto en tiempo real.</div>
           </div>
           <div class="proj-arrow">↗</div>
         </div>
@@ -1887,7 +1991,7 @@ zzz
             @keyframes miniFloat { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -10px, 0); } }
             .mini-splash { position: relative; width: 100%; height: 100%; min-height: 260px; background-color: #4ECDC4; background-image: radial-gradient(#FFD700 15%, transparent 16%); background-size: 28px 28px; display: flex; align-items: center; justify-content: center; padding: 20px; cursor: pointer; }
             .mini-panel { text-align: center; background: #ffffff; padding: 18px 20px; border: 3px solid #000000; border-radius: 18px; box-shadow: 8px 8px 0 #000000; }
-            .mini-title { font-family: 'Bangers', cursive, sans-serif; font-size: 2.2rem; color: #FF4D4D; text-shadow: 2px 2px 0px #000000; margin: 0 0 8px; transform: rotate(-3deg); animation: miniPulse 2s infinite alternate; letter-spacing: 1px; will-change: transform; }
+            .mini-title { font-family: var(--ff-display), sans-serif; font-size: 2.2rem; color: #FF4D4D; text-shadow: 2px 2px 0px #000000; margin: 0 0 8px; transform: rotate(-3deg); animation: miniPulse 2s infinite alternate; letter-spacing: 1px; will-change: transform; }
             .paused .mini-title { animation-play-state: paused; }
             .mini-subtitle { font-size: 0.85rem; font-weight: 700; margin: 6px 0 12px; color: #2b2b2b; }
             .mini-icons { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
@@ -1896,7 +2000,7 @@ zzz
             .mini-icon.delay-1 { animation-delay: 0.2s; }
             .mini-icon.delay-2 { animation-delay: 0.4s; }
             .mini-icon.delay-3 { animation-delay: 0.6s; }
-            .mini-splash-btn { background: #FFD700; border: 3px solid #000000; font-family: 'Bangers', cursive, sans-serif; font-size: 1.2rem; padding: 8px 18px; border-radius: 999px; cursor: pointer; box-shadow: 4px 4px 0 #000000; transition: all 0.2s; letter-spacing: 1px; }
+            .mini-splash-btn { background: #FFD700; border: 3px solid #000000; font-family: var(--ff-display), sans-serif; font-size: 1.2rem; padding: 8px 18px; border-radius: 999px; cursor: pointer; box-shadow: 4px 4px 0 #000000; transition: all 0.2s; letter-spacing: 1px; }
             .mini-splash-btn:hover { transform: scale3d(1.05, 1.05, 1) rotate(2deg); background: #FF4D4D; color: #ffffff; }
             .mini-splash-btn:active { transform: translate3d(3px, 3px, 0); box-shadow: 0 0 0 #000000; }
           </style>
@@ -1922,8 +2026,7 @@ zzz
 
   <section id="setup" class="section">
     <div class="inner">
-      <div class="sec-eyebrow reveal">Entorno de trabajo</div>
-      <h2 class="sec-title reveal"><br><em>Herramientas</em></h2>
+      <h2 class="sec-title reveal">Herramientas<em>.</em></h2>
       <div class="tools-grid">
         <div class="tool-card reveal">
           <div class="tool-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -2017,7 +2120,6 @@ zzz
 
   <section id="contacto" class="section">
     <div class="inner">
-      <div class="sec-eyebrow reveal">.</div>
       <h2 class="sec-title reveal">Contacto<em></em></h2>
       <div class="contact-wrap">
         <div class="contact-left-card reveal">
@@ -2082,68 +2184,113 @@ zzz
               <label>Mensaje</label>
               <textarea name="mensaje" placeholder="Escribe tu mensaje aquí..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;border-radius:var(--r)" id="sendBtn">Enviar Mensaje</button>
-            <p id="form-status" style="text-align: center; margin-top: 10px; font-family: var(--ff-mono); font-size: 0.8rem; color: var(--green-text);"></p>
+            <button type="submit" class="clay-btn clay-dark" style="width:100%;" id="sendBtn">Enviar Mensaje</button>
+            <p id="form-status" style="text-align: center; margin-top: 10px; font-family: var(--ff-mono); font-size: 0.8rem; color: var(--text);"></p>
           </form>
         </div>
       </div>
     </div>
   </section>
 
-  <footer
-    style="padding:36px 52px;display:flex;justify-content:flex-end;align-items:center;border-top:1px solid var(--border);background:var(--bg)">
-    <div
-      style="font-family:var(--ff-mono);font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">
-      DISEÑADO Y DESARROLLADO POR AbnerF
+  <!-- AI CHATBOT UI -->
+  <div class="ai-chat-btn" id="aiChatBtn" onclick="toggleChat()">
+    <svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Sombra hiper-realista para las letras -->
+        <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000000" flood-opacity="0.25"/>
+        </filter>
+
+        <!-- Gradiente Perlado para las letras (toque premium 3D) -->
+        <linearGradient id="textGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="100%" stop-color="#d1d9e6" />
+        </linearGradient>
+
+        <!-- Gradiente Atardecer Premium -->
+        <linearGradient id="sunsetGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#FF416C" />
+          <stop offset="100%" stop-color="#FF4B2B" />
+        </linearGradient>
+
+        <!-- Gradiente Océano Premium -->
+        <linearGradient id="oceanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#00C9FF" />
+          <stop offset="100%" stop-color="#0072FF" />
+        </linearGradient>
+
+        <!-- Cortes perfectos que ahora enmascaran TANTO el círculo como la letra -->
+        <clipPath id="aboveWave">
+          <path d="M 0,0 L 400,0 L 400,235 C 280,185 120,345 0,275 Z"/>
+        </clipPath>
+        <clipPath id="belowWave">
+          <path d="M 0,500 L 400,500 L 400,255 C 280,205 120,365 0,295 Z"/>
+        </clipPath>
+      </defs>
+
+      <!-- TODO gira junto. Las letras viajan integradas en sus respectivos cortes -->
+      <g class="af-logo-mark">
+        
+        <!-- MITAD SUPERIOR: Círculo Naranja + Letra F -->
+        <g clip-path="url(#aboveWave)">
+          <circle cx="200" cy="195" r="145" fill="url(#sunsetGrad)"/>
+          <text class="af-logo-letter af-logo-f" x="200" y="195" dy="0.38em" filter="url(#textShadow)" fill="url(#textGrad)">F</text>
+        </g>
+
+        <!-- MITAD INFERIOR: Círculo Azul + Letra A -->
+        <g clip-path="url(#belowWave)">
+          <circle cx="200" cy="335" r="145" fill="url(#oceanGrad)"/>
+          <text class="af-logo-letter af-logo-a" x="200" y="335" dy="0.32em" filter="url(#textShadow)" fill="url(#textGrad)">A</text>
+        </g>
+
+      </g>
+    </svg>
+  </div>
+
+  <div class="ai-chat-window" id="aiChatWindow">
+    <div class="ai-header">
+      <div class="ai-title">
+        Asistente de IA
+      </div>
+      <button class="ai-close" onclick="toggleChat()">✕</button>
+    </div>
+    <div class="ai-body" id="aiChatBody">
+      <div class="ai-msg ai-msg-bot">
+        <p>¡Hola! 👋 Soy el asistente virtual de Abner Franco. Puedo responder preguntas sobre su experiencia en desarrollo web, análisis químico o sus proyectos. ¿En qué te puedo ayudar hoy?</p>
+      </div>
+      <div class="typing-indicator" id="aiTyping">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <form class="ai-footer" onsubmit="handleChatSubmit(event)">
+      <div class="ai-form">
+        <input type="text" class="ai-input" id="aiInput" placeholder="Pregunta sobre Abner..." required autocomplete="off">
+        <button type="submit" class="ai-send">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <footer style="padding:40px 24px;border-top:1px solid rgba(31, 41, 55, 0.15);background:rgba(255, 255, 255, 0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:relative;z-index:10">
+    <div style="max-width:1160px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px">
+      <div style="font-family:var(--ff-mono);font-size:0.75rem;letter-spacing:1px;color:#374151;display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-weight:600">
+        <span>DISEÑADO Y DESARROLLADO POR <strong style="color:#1f2937">AbnerF</strong></span>
+        <span style="color:#cbd5e1">|</span>
+        <a href="#" onclick="openLegalModal('privacidad', event)" style="color:#1f2937;text-decoration:underline;text-underline-offset:4px;transition:all 0.2s;font-weight:700">Privacidad</a>
+        <span style="color:#cbd5e1">·</span>
+        <a href="#" onclick="openLegalModal('terminos', event)" style="color:#1f2937;text-decoration:underline;text-underline-offset:4px;transition:all 0.2s;font-weight:700">Términos y Condiciones</a>
+      </div>
+      <div style="font-family:var(--ff-mono);font-size:0.7rem;color:#4b5563;font-weight:500">
+        © 2026 Abner Franco. El Salvador.
+      </div>
     </div>
   </footer>
+  
   <script>
-    const cur = document.getElementById('cur'), ring = document.getElementById('curRing');
-    let mx = -100, my = -100, rx = -100, ry = -100;
-    let rafId = null;
-    let isIdle = true;
-    let idleTimer;
-    let hasHoverSupport = window.matchMedia("(any-hover: hover)").matches;
-
-    if (hasHoverSupport) {
-      document.addEventListener('mousemove', e => {
-        mx = e.clientX;
-        my = e.clientY;
-        cur.style.transform = `translate3d(${mx}px, ${my}px, 0) translate3d(-50%, -50%, 0)`;
-
-        // Si estaba inactivo, se reactiva visualmente el cursor y reiniciamos el RAF.
-        if (isIdle) {
-          isIdle = false;
-          cur.style.opacity = '1';
-          ring.style.opacity = '1';
-          rx = mx; ry = my; // para saltar al cursor instantáneamente al reactivarse.
-          if (!rafId) rafId = requestAnimationFrame(raf);
-        }
-
-        // Reseteamos el temporizador de inactividad
-        clearTimeout(idleTimer);
-        idleTimer = setTimeout(() => {
-          isIdle = true;
-          cur.style.opacity = '0';
-          ring.style.opacity = '0';
-          if (rafId) { cancelAnimationFrame(rafId); rafId = null; } // Matamos el loop para ahorrar CPU/RAM
-        }, 2500); // Se pausa el cursor luego de 2.5s sin movimiento
-      });
-
-      function raf() {
-        rx += (mx - rx) * 0.1;
-        ry += (my - ry) * 0.1;
-        ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate3d(-50%, -50%, 0)`;
-
-        // Solo seguimos animando si no estamos en estado "idle" completo
-        if (!isIdle || (Math.abs(mx - rx) > 0.1 || Math.abs(my - ry) > 0.1)) {
-          rafId = requestAnimationFrame(raf);
-        } else {
-          rafId = null; // Paramos de ejecutar requestAnimationFrame basura
-        }
-      }
-    }
-
     // Iniciar IntersectionObserver para pausar animaciones no visibles
     const animObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -2195,55 +2342,43 @@ zzz
       const email = form.querySelector('input[name="email"]').value.trim();
       const mensaje = form.querySelector('textarea[name="mensaje"]').value.trim();
 
-      // Validación de campos
       if (!nombre || !email || !mensaje) {
         status.textContent = '❌ Todos los campos son obligatorios';
         status.style.color = '#dc2626';
         return;
       }
 
-      // UX de carga
       sendBtn.disabled = true;
       sendBtn.textContent = '⏳ Enviando...';
       status.textContent = '';
-      status.style.color = 'var(--green-text)';
+      status.style.color = 'var(--text)';
 
       try {
-        // Timeout de 15 segundos para prevenir esperas indefinidas
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000);
 
         const response = await fetch('/api/send-message', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: nombre,
-            email: email,
-            message: mensaje
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: nombre, email: email, message: mensaje }),
           signal: controller.signal
         });
 
         clearTimeout(timeoutId);
-
         const data = await response.json();
 
         if (response.ok) {
-          // Éxito
           sendBtn.style.background = '#16a34a';
           sendBtn.textContent = '✓ ¡Mensaje enviado!';
           status.textContent = "¡Gracias! Te responderé pronto.";
+          status.style.color = '#16a34a';
           form.reset();
         } else {
-          // Manejo de errores del backend Flask
           status.textContent = data.error || '¡Ups! Hubo un problema al enviar.';
           status.style.color = '#dc2626';
         }
       } catch (error) {
         console.error('❌ Error en contacto:', error);
-        
         if (error.name === 'AbortError') {
           status.textContent = '❌ Timeout: El servidor tardó demasiado en responder.';
         } else {
@@ -2251,7 +2386,6 @@ zzz
         }
         status.style.color = '#dc2626';
       } finally {
-        // Restaurar el botón después de 4 segundos
         setTimeout(() => {
           sendBtn.style.background = '';
           sendBtn.textContent = originalText;
@@ -2260,7 +2394,6 @@ zzz
         }, 4000);
       }
     }
-
   </script>
 
   <script>
@@ -2296,62 +2429,54 @@ zzz
         },
       ];
 
-      [1, 2].forEach((n, i) => {
-        const scene    = document.getElementById(`scene${n}`);
-        const liq      = document.getElementById(`csLiq${n}`);
-        const scale    = document.getElementById(`csScale${n}`);
-        const flaskLiq = document.getElementById(`csFlaskLiq${n}`);
-        const shadow   = document.getElementById(`csShadow${n}`);
-        const dot      = document.getElementById(`csDot${n}`);
-        const label    = document.getElementById(`csLabel${n}`);
-        if (!scene) return;
+      const scene2El = document.getElementById('scene2');
+      if (scene2El) {
+        const liq = document.getElementById('csLiq2');
+        const scale = document.getElementById('csScale2');
+        const shadow = document.getElementById('csShadow2');
+        const label = document.getElementById('csLabel2');
+        const r = reactions[Math.floor(Math.random() * reactions.length)];
 
-        /* Reacción — distinta para cada tarjeta */
-        const r = reactions[(i * 2 + Math.floor(Math.random() * 2)) % reactions.length];
+        scene2El.style.setProperty('--reagent-color', r.reagent);
+        scene2El.style.setProperty('--flask-color', r.initial);
 
-        scene.style.setProperty('--reagent-color', r.reagent);
-        scene.style.setProperty('--flask-color',   r.initial);
-
-        if (dot)    dot.style.background  = r.reagent;
-        if (label)  label.textContent     = r.name;
+        if (label) label.textContent = r.name;
         if (shadow) {
           shadow.style.background = 'var(--chem-shadow)';
           shadow.style.opacity = '0.9';
         }
 
-        /* Graduaciones generadas — 3 tamaños */
         if (scale) {
           for (let t = 0; t <= 13; t++) {
             const s = document.createElement('span');
-            s.style.top   = `${(t / 13) * 100}%`;
+            s.style.top = `${(t / 13) * 100}%`;
             s.style.width = t % 4 === 0 ? '7px' : t % 2 === 0 ? '5px' : '3px';
             scale.appendChild(s);
           }
         }
 
-        /* ── Ciclo de titulación ── */
         let titrated = false;
         setInterval(() => {
           titrated = !titrated;
           if (titrated) {
-            scene.style.setProperty('--flask-color', r.final);
+            scene2El.style.setProperty('--flask-color', r.final);
             if (shadow) {
               shadow.style.background = 'var(--chem-shadow)';
               shadow.style.opacity = '1';
             }
-            if (liq)    liq.style.height = '38%';
-            scene.classList.add('is-titrating');
-            setTimeout(() => scene.classList.remove('is-titrating'), 600);
+            if (liq) liq.style.height = '38%';
+            scene2El.classList.add('is-titrating');
+            setTimeout(() => scene2El.classList.remove('is-titrating'), 600);
           } else {
-            scene.style.setProperty('--flask-color', r.initial);
+            scene2El.style.setProperty('--flask-color', r.initial);
             if (shadow) {
               shadow.style.background = 'var(--chem-shadow)';
               shadow.style.opacity = '0.9';
             }
-            if (liq)    liq.style.height = '72%';
+            if (liq) liq.style.height = '72%';
           }
         }, 7500);
-      });
+      }
 
     });
 
@@ -2376,7 +2501,135 @@ zzz
       });
     }
 
-  </script>
-</body>
+    /* ─────────────────────────────────────────
+       LÓGICA DEL CHATBOT AI (GEMINI)
+    ───────────────────────────────────────── */
+    const chatWindow = document.getElementById('aiChatWindow');
+    const chatBody = document.getElementById('aiChatBody');
+    const aiInput = document.getElementById('aiInput');
+    const typingIndicator = document.getElementById('aiTyping');
+    
+    let conversationHistory = [];
 
+    function toggleChat() {
+      chatWindow.classList.toggle('open');
+      if (chatWindow.classList.contains('open')) {
+        aiInput.focus();
+      }
+    }
+
+    function addMessageToUI(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `ai-msg ai-msg-${sender}`;
+      
+      if (sender === 'bot') {
+        msgDiv.innerHTML = marked.parse(text);
+      } else {
+        msgDiv.textContent = text;
+      }
+      chatBody.insertBefore(msgDiv, typingIndicator);
+      scrollToBottom();
+    }
+
+    function scrollToBottom() {
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    async function handleChatSubmit(e) {
+      e.preventDefault();
+      const userText = aiInput.value.trim();
+      if (!userText) return;
+
+      addMessageToUI(userText, 'user');
+      aiInput.value = '';
+      aiInput.disabled = true;
+
+      typingIndicator.style.display = 'flex';
+      scrollToBottom();
+
+      conversationHistory.push({
+        role: 'user',
+        content: userText
+      });
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: userText,
+            history: conversationHistory
+          })
+        });
+
+        if (!response.ok) throw new Error(`Error de red: ${response.status}`);
+
+        const data = await response.json();
+        
+        const botReply = data.reply || "Lo siento, ha ocurrido un error al procesar la respuesta.";
+        conversationHistory.push({
+          role: 'model',
+          content: botReply
+        });
+        
+        addMessageToUI(botReply, 'bot');
+
+      } catch (error) {
+        console.error('Error al llamar al backend de IA:', error);
+        addMessageToUI("Lo siento, tuve un problema de conexión con el servicio de IA. Por favor, intenta de nuevo.", 'bot');
+        conversationHistory.pop();
+      } finally {
+        typingIndicator.style.display = 'none';
+        aiInput.disabled = false;
+        aiInput.focus();
+      }
+    }
+
+    function openLegalModal(tipo, e) {
+      if(e) e.preventDefault();
+      const modal = document.getElementById('legalModal');
+      const title = document.getElementById('legalTitle');
+      const content = document.getElementById('legalContent');
+
+      if (tipo === 'privacidad') {
+        title.textContent = 'Política de Privacidad y Tratamiento de Datos';
+        content.innerHTML = `
+          <p><strong>1. Marco Legal y Responsable:</strong> En cumplimiento con la legislación de la República de El Salvador en materia de Protección de Datos Personales, se informa que este sitio web (<em>abnerfranco.me</em>) es administrado por Abner Franco. La información capturada se gestiona bajo estrictos estándares de confidencialidad y ética profesional.</p>
+          <p><strong>2. Finalidad de los Datos:</strong> Los datos proporcionados por el usuario en el formulario de contacto (Nombre, Correo Electrónico y Mensaje) se utilizan exclusivamente para entablar comunicación profesional, responder a propuestas laborales, cotizaciones de servicios de desarrollo de software o consultoría técnica. Queda prohibida la venta, cesión o comercialización de sus datos a terceros.</p>
+          <p><strong>3. Interacción con Inteligencia Artificial:</strong> El "Asistente de IA" integrado utiliza interfaces de modelos de lenguaje automatizados. El usuario acepta que las consultas ingresadas en dicho chat no deben contener datos bancarios, contraseñas, información médica ni datos personales sensibles. El administrador no procesa ni almacena datos confidenciales compartidos indebidamente por el usuario en el asistente.</p>
+          <p><strong>4. Derechos del Usuario:</strong> Para ejercer sus derechos de Acceso, Rectificación, Cancelación u Oposición sobre sus datos, puede comunicarse directamente al correo electrónico formal: <a href="mailto:contacto@abnerfranco.me" style="color:#0f172a;font-weight:700;text-decoration:underline">contacto@abnerfranco.me</a>.</p>
+        `;
+      } else {
+        title.textContent = 'Términos, Condiciones y Contratación de Servicios';
+        content.innerHTML = `
+          <p><strong>1. Propiedad Intelectual:</strong> Salvo bibliotecas de código abierto o software de terceros debidamente acreditados, todo el diseño, arquitectura, código fuente, logotipos y simulaciones interactivas (incluyendo INSAM Salud y FarmacoLandia) son propiedad de Abner Franco, protegidos por las leyes de propiedad intelectual de El Salvador y tratados internacionales.</p>
+          <p><strong>2. Descargo General de Responsabilidad:</strong> El contenido, simuladores académicos y respuestas del "Asistente de IA" se publican con fines educativos, ilustrativos y de demostración de competencias técnicas. Conforme al Código Civil salvadoreño, Abner Franco se exime de cualquier responsabilidad por daños directos, indirectos o imprevistos derivados de la interpretación o uso de los códigos y simulaciones públicas aquí exhibidas.</p>
+          <p><strong>3. Prestación de Servicios y Entregables Digitales:</strong> En caso de contratación para servicios de desarrollo web, consultoría técnica, creación de sistemas a medida o integraciones de software, la relación se regirá por propuestas comerciales firmadas entre las partes. Dada la naturaleza intangible del desarrollo de software y la dedicación de tiempo técnico, <strong>los anticipos, honorarios pagados y entregables de código o sistemas desplegados no son reembolsables</strong>, salvo acuerdo expreso por escrito en el contrato de servicio.</p>
+          <p><strong>4. Ciberseguridad y Uso Lícito:</strong> El usuario se compromete a no intentar ataques de denegación de servicio (DDoS), inyecciones masivas, ingeniería inversa al servidor o raspado abusivo (scraping). El uso ilegítimo de la infraestructura facultará al administrador al bloqueo inmediato de IP y a ejercer las acciones legales penales y civiles correspondientes ante los tribunales de la República de El Salvador.</p>
+        `;
+      }
+
+      modal.style.display = 'flex';
+      setTimeout(() => modal.style.opacity = '1', 10);
+    }
+
+    function closeLegalModal() {
+      const modal = document.getElementById('legalModal');
+      modal.style.opacity = '0';
+      setTimeout(() => modal.style.display = 'none', 300);
+    }
+  </script>
+  <div id="legalModal" style="display:none;position:fixed;inset:0;background:rgba(15, 23, 42, 0.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:2000;justify-content:center;align-items:center;padding:16px;opacity:0;transition:opacity 0.3s ease">
+    <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:24px;max-width:680px;width:100%;max-height:85vh;display:flex;flex-direction:column;position:relative;box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.35);color:#1e293b;font-family:var(--ff-display);overflow:hidden">
+      <div style="padding:22px 28px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;background:#f8fafc">
+        <h3 id="legalTitle" style="font-weight:800;font-size:1.3rem;margin:0;color:#0f172a;letter-spacing:-0.5px"></h3>
+        <button onclick="closeLegalModal()" style="background:#e2e8f0;border:none;color:#475569;width:32px;height:32px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s">✕</button>
+      </div>
+      <div id="legalContent" style="padding:28px;overflow-y:auto;font-size:0.92rem;line-height:1.75;color:#334155;display:flex;flex-direction:column;gap:16px"></div>
+      <div style="padding:16px 28px;border-top:1px solid #e2e8f0;background:#f8fafc;text-align:right">
+        <button onclick="closeLegalModal()" style="background:#0f172a;color:#ffffff;border:none;padding:12px 28px;border-radius:99px;font-weight:700;font-size:0.8rem;cursor:pointer;transition:transform 0.2s">Entendido</button>
+      </div>
+    </div>
+  </div>
+</body>
 </html>
