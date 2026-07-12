@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -2501,9 +2501,6 @@
       });
     }
 
-    /* ─────────────────────────────────────────
-       LÓGICA DEL CHATBOT AI (GEMINI)
-    ───────────────────────────────────────── */
     const chatWindow = document.getElementById('aiChatWindow');
     const chatBody = document.getElementById('aiChatBody');
     const aiInput = document.getElementById('aiInput');
@@ -2547,39 +2544,36 @@
       typingIndicator.style.display = 'flex';
       scrollToBottom();
 
-      conversationHistory.push({
-        role: 'user',
-        content: userText
-      });
-
       try {
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: userText,
-            history: conversationHistory
+          body: JSON.stringify({ 
+            message: userText, 
+            history: conversationHistory 
           })
         });
 
-        if (!response.ok) throw new Error(`Error de red: ${response.status}`);
-
         const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || `Error del servidor: ${response.status}`);
+        }
         
-        const botReply = data.reply || "Lo siento, ha ocurrido un error al procesar la respuesta.";
-        conversationHistory.push({
-          role: 'model',
-          content: botReply
-        });
+        const botReply = data.reply || "Lo siento, no se recibió una respuesta válida.";
         
+        // Guardar historial en formato estándar de Groq (OpenAI style)
+        conversationHistory.push({ role: "user", content: userText });
+        conversationHistory.push({ role: "assistant", content: botReply });
+        
+        typingIndicator.style.display = 'none';
         addMessageToUI(botReply, 'bot');
 
       } catch (error) {
-        console.error('Error al llamar al backend de IA:', error);
-        addMessageToUI("Lo siento, tuve un problema de conexión con el servicio de IA. Por favor, intenta de nuevo.", 'bot');
-        conversationHistory.pop();
-      } finally {
+        console.error('❌ Error en el chatbot:', error);
         typingIndicator.style.display = 'none';
+        addMessageToUI("Lo siento, tuve un problema al conectarme con el servidor de IA. Por favor, intenta de nuevo.", 'bot');
+      } finally {
         aiInput.disabled = false;
         aiInput.focus();
       }

@@ -65,73 +65,69 @@ def send_message():
     return jsonify({"ok": True, "message": "Mensaje recibido correctamente"}), 200
 
 
-def _normalize_chat_message(entry):
-    if isinstance(entry, dict):
-        role = str(entry.get("role", "user")).strip() or "user"
-        if role == "assistant":
-            role = "model"
-        text = entry.get("content", entry.get("text", ""))
-        return {"role": role, "parts": [{"text": str(text).strip()}]}
-    return {"role": "user", "parts": [{"text": str(entry).strip()}]}
-
-
 @app.post("/api/chat")
 @limiter.limit("10 per minute")
-def chat():
+def chat_endpoint():
     payload = request.get_json(silent=True) or {}
-    message = str(payload.get("message", "")).strip()
-    history = payload.get("history") or []
+    user_message = str(payload.get("message", "")).strip()
+    history = payload.get("history", [])
 
-    if not message or len(message) > 500:
-        return jsonify({"error": "El mensaje es obligatorio y debe tener máximo 500 caracteres"}), 400
+    if not user_message or len(user_message) > 500:
+        return jsonify({"error": "Mensaje inválido o demasiado largo"}), 400
 
-    api_key = os.environ.get("GEMINI_API_KEY")
+    api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
-        return jsonify({"error": "Falta la clave GEMINI_API_KEY"}), 500
+        return jsonify({"error": "Falta configurar la variable GROQ_API_KEY en el servidor"}), 500
+
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    system_instruction = (
+        "Eres el asistente virtual de Abner Franco, integrado en su portafolio web. "
+        "Tono: Profesional, amable, conciso y entusiasta. Usa emojis donde sea oportuno.\n"
+        "Información sobre Abner:\n"
+        "- Estudiante de 2° año de Laboratorio Químico en ITCA-FEPADE y Desarrollador Web Full Stack.\n"
+        "- Proyectos clave: 'INSAM Salud' (plataforma médica hospitalaria en Python/SQL) y 'FarmacoLandia' (app interactiva sobre farmacología en JS).\n"
+        "- Habilidades: Python, Flask, SQL, HTML/CSS/JS, Análisis Químico, Procesamiento de datos, APIs REST.\n"
+        "- Experiencia: Ejecutivo de Venta en Crece Centro América S.A.S.V. y Auxiliar en Energías Renovables en Advance Energy.\n"
+        "- Contacto: contacto@abnerfranco.me, LinkedIn o GitHub.\n"
+        "Reglas:\n"
+        "1. Responde SOLO sobre Abner, su portafolio, tecnología, química o sus proyectos.\n"
+        "2. Sé breve (máximo 2-3 párrafos cortos).\n"
+        "3. Usa formato Markdown básico."
+    )
+
+    messages = [{"role": "system", "content": system_instruction}]
+    
+    for msg in history:
+        role = msg.get("role")
+        content = msg.get("content")
+        if role in ["user", "assistant"] and isinstance(content, str):
+            messages.append({"role": role, "content": content})
+            
+    messages.append({"role": "user", "content": user_message})
+
+    body = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": messages,
+        "temperature": 0.7,
+        "max_tokens": 300
+    }
 
     try:
-        contents = []
-        if isinstance(history, list):
-            contents.extend(_normalize_chat_message(entry) for entry in history)
-
-        if not contents or contents[-1].get("role") != "user" or contents[-1].get("parts", [{}])[0].get("text") != message:
-            contents.append(_normalize_chat_message({"role": "user", "content": message}))
-
-        payload = {
-            "systemInstruction": {
-                "parts": [
-                    {
-                        "text": (
-                            "Eres el asistente profesional de Abner Franco: un perfil de desarrollador web "
-                            "y creador de portafolio con enfoque en soluciones claras, seguras y orientadas al usuario."
-                        )
-                    }
-                ]
-            },
-            "contents": contents,
-        }
-
-        response = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}",
-            json=payload,
-            timeout=10,
-        )
-        response.raise_for_status()
-        data = response.json()
-
-        candidates = data.get("candidates") or []
-        first_candidate = candidates[0] if candidates else {}
-        content = first_candidate.get("content") or {}
-        parts = content.get("parts") or []
-        reply = "".join(str(part.get("text", "")) for part in parts if isinstance(part, dict)).strip()
-
-        if not reply:
-            reply = "No fue posible generar una respuesta en este momento."
-
-        return jsonify({"reply": reply}), 200
-    except Exception as exc:
-        app.logger.error("Error en /api/chat: %s", exc, exc_info=True)
-        return jsonify({"error": "Error de comunicación con la IA"}), 502
+        res = requests.post(url, headers=headers, json=body, timeout=10)
+        res.raise_for_status()
+        data = res.json()
+        bot_reply = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+        if not bot_reply:
+            bot_reply = "Lo siento, no pude generar una respuesta en este momento."
+        return jsonify({"reply": bot_reply}), 200
+    except Exception as e:
+        app.logger.error("Error en Groq API: %s", str(e))
+        return jsonify({"error": "Error al comunicarse con el servicio de IA"}), 502
 
 
 if __name__ == "__main__":
