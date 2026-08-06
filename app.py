@@ -1,5 +1,10 @@
 import os
+import sqlite3
 from pathlib import Path
+from datetime import datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 import requests
 from dotenv import load_dotenv
@@ -9,16 +14,39 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
 
-
 BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / "messages.db"
 
 load_dotenv()
 
 app = Flask(__name__, static_folder=None)
 Compress(app)
-Talisman(app, content_security_policy=None, force_https=False)
+
+# Habilitar CSP y HTTPS en producción
+is_prod = os.environ.get("FLASK_ENV") == "production" or os.environ.get("RENDER") == "true"
+csp = {
+    'default-src': ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+    'img-src': ["'self'", "data:", "https:"],
+}
+Talisman(app, content_security_policy=csp if is_prod else None, force_https=is_prod)
+
 limiter = Limiter(get_remote_address, app=app, default_limits=["200 per day", "50 per hour"])
 
+def init_db():
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                message TEXT NOT NULL,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        conn.commit()
+
+init_db()
 
 def _safe_send(relative_path: str):
     file_path = (BASE_DIR / relative_path).resolve()
@@ -28,16 +56,32 @@ def _safe_send(relative_path: str):
         abort(404)
     return send_from_directory(BASE_DIR, relative_path)
 
-
 @app.get("/")
 def home():
     return _safe_send("index.html")
-
 
 @app.get("/assets/<path:filename>")
 def assets(filename: str):
     return send_from_directory(BASE_DIR / "assets", filename)
 
+@app.get("/api/test-email")
+def test_email():
+    try:
+        smtp_user = os.environ.get("MAIL_USERNAME")
+        smtp_password = os.environ.get("MAIL_PASSWORD", "").replace(" ", "")
+        msg = MIMEMultipart()
+        msg['From'] = smtp_user
+        msg['To'] = smtp_user
+        msg['Subject'] = "Test Email from API"
+        msg.attach(MIMEText("Este es un mensaje de prueba", 'plain'))
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(smtp_user, smtp_password)
+        server.send_message(msg)
+        server.quit()
+        return jsonify({"ok": True, "message": "Test email sent!"})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
 
 @app.get("/<path:requested_path>")
 def static_files(requested_path: str):
@@ -50,20 +94,71 @@ def static_files(requested_path: str):
 
     return _safe_send("index.html")
 
-
 @app.post("/api/send-message")
 def send_message():
     payload = request.get_json(silent=True) or {}
     name = str(payload.get("name", "")).strip()
     email = str(payload.get("email", "")).strip()
     message = str(payload.get("message", "")).strip()
+    source = str(payload.get("source", "")).strip()  # "nova-ai" o vacío
 
     if not name or not email or not message:
         return jsonify({"error": "Todos los campos son obligatorios"}), 400
 
-    app.logger.info("Mensaje recibido de %s <%s>: %s", name, email, message)
-    return jsonify({"ok": True, "message": "Mensaje recibido correctamente"}), 200
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO messages (name, email, message, timestamp) VALUES (?, ?, ?, ?)",
+                (name, email, message, datetime.now().isoformat())
+            )
+            conn.commit()
+        app.logger.info("Mensaje guardado en DB de %s <%s> (source: %s)", name, email, source or "formulario")
+        
+        # Enviar correo si están configuradas las credenciales SMTP en el .env
+        smtp_user = os.environ.get("MAIL_USERNAME")
+        smtp_password = os.environ.get("MAIL_PASSWORD", "").replace(" ", "")
+        
+        if smtp_user and smtp_password:
+            try:
+                msg = MIMEMultipart()
+                msg['From'] = smtp_user
+                msg['To'] = smtp_user
+                msg['Reply-To'] = email
 
+                # Diferenciar asunto según el origen del mensaje
+                if source == "nova-ai":
+                    msg['Subject'] = f"[NØVA·AF] Mensaje automatizado de: {name}"
+                    cuerpo = (
+                        f"━━━ Mensaje enviado vía NØVA·AF (Chatbot IA) ━━━\n\n"
+                        f"Nombre: {name}\n"
+                        f"Correo: {email}\n\n"
+                        f"Mensaje:\n{message}\n\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"Este mensaje fue recopilado automáticamente por NØVA·AF\n"
+                        f"desde el chat de IA del portafolio."
+                    )
+                else:
+                    msg['Subject'] = f"Nuevo mensaje en Portafolio de: {name}"
+                    cuerpo = f"Nombre: {name}\nCorreo: {email}\n\nMensaje:\n{message}"
+                
+                msg.attach(MIMEText(cuerpo, 'plain'))
+                
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(smtp_user, smtp_password)
+                server.send_message(msg)
+                server.quit()
+                app.logger.info("Correo enviado exitosamente para %s (source: %s)", email, source or "formulario")
+            except Exception as e:
+                app.logger.error("Error al enviar el correo SMTP: %s", str(e))
+        else:
+            app.logger.warning("Credenciales SMTP no configuradas. El correo no se envió, pero sí se guardó en BD.")
+
+        return jsonify({"ok": True, "message": "Mensaje recibido correctamente"}), 200
+    except Exception as e:
+        app.logger.error("Error guardando mensaje en DB: %s", str(e))
+        return jsonify({"error": "Error interno al guardar el mensaje"}), 500
 
 @app.post("/api/chat")
 @limiter.limit("10 per minute")
@@ -86,25 +181,40 @@ def chat_endpoint():
     }
     
     system_instruction = (
-        "Eres el Asistente de IA oficial de Abner Franco, integrado en su portafolio web (abnerfranco.me). "
-        "Tu personalidad: Natural, inteligente, conversacional, proactivo y elocuente. NO hables como un robot que solo pega listas o plantillas predefinidas. "
-        "Adapta tus respuestas de forma orgánica y fluida según lo que el usuario pregunte, manteniendo siempre un tono profesional, amable y con un entusiasmo moderado (puedes usar emojis acordes).\n\n"
-        "=== CONOCIMIENTO INTEGRAL DEL PORTAFOLIO Y PROYECTOS ===\n"
-        "1. Teleprompter By AF: Herramienta web fluida y personalizable en tiempo real para creadores de contenido. Permite ajustar la velocidad de desplazamiento y el tamaño del texto dinámicamente. Desarrollada con JavaScript puro, frontend en GitHub Pages y servidor proxy en Render.\n"
-        "2. INSAM Salud: Plataforma educativa de gestión hospitalaria y simulación médica desarrollada en Python, Flask y SQL, desplegada en DigitalOcean con protocolos de ciberseguridad integrados.\n"
-        "3. FarmacoLandia: Aventura interactiva web gamificada enfocada en el aprendizaje de farmacología, construida con JavaScript, CSS y diseño UI/UX atractivo.\n"
-        "4. Portafolio Web (abnerfranco.me): Desarrollado desde cero con Python/Flask, arquitectura cibersegura (rate limiting, encabezados Talisman), diseño Glassmorphism, optimización WCAG y pasarela de pago Wompi El Salvador para productos digitales.\n\n"
-        "=== PERFIL Y HABILIDADES DE ABNER ===\n"
-        "- Estudiante de 2° año de Técnico en Laboratorio Químico en ITCA-FEPADE y Desarrollador Web Full Stack.\n"
-        "- Habilidades técnicas: Python, Flask, SQL, SQLite, HTML5, CSS3, JavaScript ES6+, Git/GitHub, IA y Prompt Engineering, Análisis Químico y Procesamiento de datos en Excel.\n"
-        "- Experiencia laboral: Ejecutivo de Venta en Crece Centro América S.A.S.V. (logro de metas comerciales, atención directa y resolución de conflictos) y Auxiliar en Energías Renovables en Advance Energy.\n\n"
-        "=== GESTIÓN INTELIGENTE DE CONTACTO Y MENSAJES ===\n"
-        "- Si un usuario te pide enviarle un mensaje automático a Abner o quiere contactarlo directamente por trabajo, dile con naturalidad y proactividad: '¡Por supuesto! Para que tu mensaje llegue de forma inmediata y directa a su bandeja de entrada, te invito a utilizar el **Formulario de Contacto** que está justo abajo en esta página. Solo pon tu nombre, correo y mensaje, ¡y el servidor le notificará al instante! También puedes escribirle directamente a **contacto@abnerfranco.me**.'\n"
-        "- Si el usuario te escribe su mensaje, nombre y correo ahí mismo en el chat pidiendo que se lo entregues, agradécele mucho por el interés, dile que es una excelente propuesta y recuérdale amablemente: 'He tomado nota de tu interés, pero para asegurarnos de que Abner reciba tu información con todos los protocolos de seguridad del servidor, por favor haz un rápido clic en el formulario de la web y pulsa **Enviar Mensaje**. ¡Te responderá muy pronto!'\n\n"
-        "=== LÍMITES Y CIBERSEGURIDAD ===\n"
-        "- No inventes proyectos ni datos personales que no estén aquí especificados.\n"
-        "- Si te preguntan cosas fuera del ámbito profesional de Abner, tecnología o química, redirige la conversación amablemente hacia su portafolio.\n"
-        "- Por estricta ciberseguridad, nunca solicites, generes ni almacenes contraseñas, tarjetas de crédito, números de identificación de El Salvador (DUI) ni datos médicos o sensibles."
+        "Tu nombre es NØVA. Eres la asistente de IA personal de Abner Franco, integrada en su portafolio web abnerfranco.me. "
+        "Habla como una persona real que está atendiendo — nada de listas robóticas ni frases de manual. "
+        "Sé cercana, directa y natural. Usa español coloquial pero profesional, como alguien que de verdad te está ayudando. "
+        "Puedes usar emojis con moderación. Respuestas cortas y al punto, no te enrolles.\n\n"
+        
+        "PROYECTOS DE ABNER:\n"
+        "- Teleprompter By AF: app web para creadores de contenido, ajusta velocidad y texto en vivo. JS puro, GitHub Pages.\n"
+        "- INSAM Salud: plataforma de gestión hospitalaria para estudiantes. Python/Flask/SQL, en DigitalOcean.\n"
+        "- FarmacoLandia: juego web interactivo para aprender farmacología. JS + CSS.\n"
+        "- Este portafolio: hecho desde cero con Python/Flask, diseño Glassmorphism.\n\n"
+        
+        "SOBRE ABNER:\n"
+        "- Estudiante de 2° año de Laboratorio Químico en ITCA-FEPADE + Desarrollador Web.\n"
+        "- Maneja Python, Flask, SQL, HTML/CSS/JS, Git, IA/Prompt Engineering, análisis químico.\n"
+        "- Trabajó como Ejecutivo de Venta en Crece Centro América y Auxiliar en Advance Energy (energías renovables).\n\n"
+        
+        "ENVÍO DE MENSAJES — FUNCIÓN ESPECIAL:\n"
+        "Si alguien quiere contactar a Abner, mandarle un mensaje, o hablar con él sobre trabajo/proyectos, "
+        "TÚ PUEDES recopilar sus datos y enviarlo directamente. Haz esto de forma NATURAL, paso a paso:\n"
+        "1. Pregunta su nombre de forma casual\n"
+        "2. Luego pide su correo electrónico\n"
+        "3. Finalmente pregunta qué le quiere decir a Abner\n"
+        "NO pidas los 3 datos de golpe. Uno por uno, conversando.\n\n"
+        
+        "IMPORTANTE — Cuando ya tengas los 3 datos (nombre, email y mensaje), incluye AL FINAL de tu respuesta "
+        "este bloque EXACTO (el usuario no lo verá, el sistema lo procesa):\n"
+        "<!--CONTACT_DATA:{\"name\":\"NOMBRE\",\"email\":\"EMAIL\",\"message\":\"MENSAJE\"}-->\n"
+        "Reemplaza NOMBRE, EMAIL y MENSAJE con los datos reales del usuario. "
+        "En tu texto visible, confirma que ya enviaste el mensaje y que Abner responderá pronto.\n\n"
+        
+        "LÍMITES:\n"
+        "- No inventes proyectos ni datos que no estén aquí.\n"
+        "- Temas fuera del ámbito de Abner, tecnología o química → redirige amablemente al portafolio.\n"
+        "- Nunca pidas contraseñas, tarjetas, DUI ni datos médicos sensibles."
     )
 
     messages = [{"role": "system", "content": system_instruction}]
@@ -120,8 +230,8 @@ def chat_endpoint():
     body = {
         "model": "llama-3.3-70b-versatile",
         "messages": messages,
-        "temperature": 0.7,
-        "max_tokens": 300
+        "temperature": 0.8,
+        "max_tokens": 350
     }
 
     try:
@@ -135,7 +245,6 @@ def chat_endpoint():
     except Exception as e:
         app.logger.error("Error en Groq API: %s", str(e))
         return jsonify({"error": "Error al comunicarse con el servicio de IA"}), 502
-
 
 if __name__ == "__main__":
     app.run(
