@@ -79,6 +79,8 @@ package-lock.json
 # BASE DE DATOS
 # ============================================================================
 *.db
+*.db-shm
+*.db-wal
 *.sqlite
 *.sqlite3
 database/
