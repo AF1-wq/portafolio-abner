@@ -514,22 +514,22 @@ html.has-scroll-dragging {
 
 :root {
 
-    --color-dark: #1C1D20;
-    --color-dark-dark: #141517;
-    --color-light: #FFFFFF;
+    --color-dark: #FFFFFF;
+    --color-dark-dark: #FFFFFF;
+    --color-light: #0a192f;
     --color-blue: #455CE9;
     --color-blue-dark: #334BD3;
     --color-gray: #999D9E;
     --color-lightgray: #E9EAEB;
-    --color-white: #FFFFFF;
+    --color-white: #0a192f;
     
-    --color-border: rgba(28, 29, 32, 0.175);
+    --color-border: rgba(10, 25, 47, 0.175);
     --color-border-solid: #D2D2D2;
     --color-border-light: rgba(255, 255, 255, 0.2);
     --color-border-solid-light: #545557;
 
-    --color-text: #1C1D20;
-    --color-text-light: #FFF;
+    --color-text: #0a192f;
+    --color-text-light: #0a192f;
 
     --alert-error: #ff4444;
     --alert-success: #24C958;
@@ -5602,7 +5602,7 @@ main.touch .case-intro-image .btn-wrap {
 
 /* Tarjeta Experiencia Laboral en About */
 .about-awwwards .row {
-    background: rgba(255, 255, 255, 0.72) !important;
+    background: rgba(0, 0, 0, 0.05) !important;
     backdrop-filter: blur(24px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
     border: 1px solid rgba(28, 29, 32, 0.08) !important;
@@ -6868,6 +6868,68 @@ if(!k&&B.referrer){var q=tj(B.referrer);pj(q,"host")===G(24)&&(k=h.hn)}if(!k){va
          
          gtag('config', 'G-SGWQQRQ15Y');
 		</script>
+
+
+<style>
+  /* Solo color azul tipo morado para las bolas redondas como se indico */
+  .btn-hamburger .btn-click, .btn-round .btn-click, .btn-hamburger .btn-fill, .btn-round .btn-fill {
+      background-color: #455CE9 !important;
+      border: none !important;
+  }
+  
+  .btn-hamburger .btn-text-inner, .btn-round .btn-text-inner, .btn-hamburger .btn-icon {
+      color: #ffffff !important;
+  }
+  
+  .btn-hamburger .btn-bars, .btn-hamburger .btn-bars::before, .btn-hamburger .btn-bars::after {
+      background-color: #ffffff !important;
+  }
+</style>
+
+<!-- APPLE / ONE UI REDESIGN PATCH -->
+<style>
+:root {
+  --apple-glass-bg: rgba(255, 255, 255, 0.02);
+  --apple-blur: blur(24px) saturate(180%);
+  --apple-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  --apple-radius: 28px;
+  --apple-radius-sm: 16px;
+}
+
+/* Glassmorphism Navbar / Headers */
+nav, .nav, .menu, .fixed-nav, [data-scroll-section] header {
+    backdrop-filter: var(--apple-blur) !important;
+    -webkit-backdrop-filter: var(--apple-blur) !important;
+}
+
+/* Suavizado Global One UI (Esquinas muy redondeadas) */
+* {
+    border-radius: 0px;
+}
+.btn, .btn-click, .btn-fill, .work-item, .archive-item, .personal-image, .single-image img {
+    border-radius: var(--apple-radius) !important;
+}
+.btn-round, .btn-hamburger {
+    border-radius: 50% !important;
+}
+
+/* Sombras suaves estilo Apple */
+.work-item, .archive-item, .fixed-nav {
+    box-shadow: var(--apple-shadow) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Transiciones fluidas One UI */
+a, .btn, .btn-click, .work-item, .archive-item, .stripe, .line {
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+/* Tipografia mas limpia (interletraje) */
+h1, h2, h3, h4, h5, .btn-text-inner {
+    letter-spacing: -0.02em !important;
+}
+</style>
+
 </head>
 <body data-barba="wrapper" style="">
 <div class="no-scroll-overlay"></div>
