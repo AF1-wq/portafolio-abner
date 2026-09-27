@@ -483,12 +483,12 @@ html.has-scroll-dragging {
 
     --color-dark: #FFFFFF;
     --color-dark-dark: #FFFFFF;
-    --color-light: #0a192f;
+    --color-light: #FFFFFF;
     --color-blue: #455CE9;
     --color-blue-dark: #334BD3;
     --color-gray: #999D9E;
     --color-lightgray: #E9EAEB;
-    --color-white: #0a192f;
+    --color-white: #FFFFFF;
     
     --color-border: rgba(10, 25, 47, 0.175);
     --color-border-solid: #D2D2D2;
@@ -496,7 +496,7 @@ html.has-scroll-dragging {
     --color-border-solid-light: #545557;
 
     --color-text: #0a192f;
-    --color-text-light: #0a192f;
+    --color-text-light: #FFFFFF;
 
     --alert-error: #ff4444;
     --alert-success: #24C958;
@@ -2065,7 +2065,7 @@ main.touch .main-wrap {
 .loading-container .loading-words h2 {
    margin: 0;
    padding: 0;
-   color: var(--color-white);
+   color: #0a192f;
    position: absolute;
    top:0;
    left: 50%;
@@ -2086,7 +2086,7 @@ main.touch .main-wrap {
    display: block;
    position: absolute;
    border-radius: 50%;
-   background: var(--color-white);
+   background: #0a192f;
    left: 0;
    top: 47%;
    bottom: auto;
@@ -5529,17 +5529,17 @@ main.touch .case-intro-image .btn-wrap {
 :root {
     --color-dark: #FFFFFF;
     --color-dark-dark: #FFFFFF;
-    --color-light: #0a192f;
-    --color-gray: #0a192f;
+    --color-light: #FFFFFF;
+    --color-gray: #999D9E;
     --color-text-secondary: #5E6266;
     --color-lightgray: #F0F2F5;
-    --color-white: #0a192f;
+    --color-white: #FFFFFF;
     --color-border: rgba(10, 25, 47, 0.12);
     --color-border-solid: #D2D2D2;
     --color-border-light: rgba(255, 255, 255, 0.15);
     --color-border-solid-light: #545557;
     --color-text: #0a192f;
-    --color-text-light: #0a192f;
+    --color-text-light: #FFFFFF;
 }
 
 /* ─── 1. NAVBAR: Floating Liquid Glass Enhancements ─── */
@@ -6063,11 +6063,11 @@ main#work .stripe, main#archive .stripe, main#archive .line {
 
 /* Ajustes a los botones en el modo blanco para que sigan siendo legibles */
 main#work .btn, main#archive .btn {
-    background-color: #0a192f !important; /* Botones oscuros sobre fondo blanco */
+    background-color: #FFFFFF !important; /* Botones sobre fondo blanco */
     border: none !important;
 }
 main#work .btn .btn-text-inner, main#archive .btn .btn-text-inner {
-    color: #ffffff !important; /* Texto blanco en botones oscuros */
+    color: #0a192f !important; /* Texto oscuro en botones blancos */
 }
 main#work .btn-link .btn-text-inner, main#archive .btn-link .btn-text-inner {
     color: #0a192f !important; /* Botones de enlace como texto oscuro */
@@ -6291,6 +6291,231 @@ main#work .footer, main#archive .footer {
 }
 </style>
 
+<style id="contact-page-styles">
+/* Estilos para Contacto (Barba.js SPA & Recarga directa) */
+.contact-header h1,
+.contact-header h1 span,
+.contact-header.theme-dark h1,
+.contact-header.theme-dark h1 span,
+main#contact h1,
+main#contact h1 span,
+main[data-barba-namespace="contact"] h1,
+main[data-barba-namespace="contact"] h1 span,
+.contact-header h5,
+.contact-header.theme-dark h5,
+.contact-header p,
+.contact-header.theme-dark p,
+.contact-header label,
+.contact-header.theme-dark label,
+.contact-header input,
+.contact-header.theme-dark input,
+.contact-header textarea,
+.contact-header.theme-dark textarea,
+.contact-header .btn-text-inner,
+.contact-header.theme-dark .btn-text-inner {
+    color: #0a192f !important;
+}
+
+.contact-header input,
+.contact-header.theme-dark input,
+.contact-header textarea,
+.contact-header.theme-dark textarea {
+    border-bottom-color: rgba(10, 25, 47, 0.3) !important;
+}
+
+.contact-header input::placeholder,
+.contact-header.theme-dark input::placeholder,
+.contact-header textarea::placeholder,
+.contact-header.theme-dark textarea::placeholder {
+    color: rgba(10, 25, 47, 0.5) !important;
+}
+
+.contact-header svg g#Artboard,
+.contact-header.theme-dark svg g#Artboard,
+.contact-header svg polyline,
+.contact-header.theme-dark svg polyline,
+.contact-header svg line,
+.contact-header.theme-dark svg line,
+.contact-header svg path,
+.contact-header.theme-dark svg path {
+    stroke: #0a192f !important;
+}
+
+/* Submit Button Borders & Colors */
+.contact-header .btn-round .btn-click,
+.contact-header.theme-dark .btn-round .btn-click {
+    box-shadow: inset 0px 0px 0px 1px #0a192f !important;
+    -webkit-box-shadow: inset 0px 0px 0px 1px #0a192f !important;
+}
+
+.contact-header .btn-round .btn-fill,
+.contact-header.theme-dark .btn-round .btn-fill {
+    background-color: #0B0B0B !important;
+}
+
+.contact-header .btn-contact-send,
+.contact-header.theme-dark .btn-contact-send {
+    margin-top: 2.5rem !important;
+}
+
+.contact-header .btn-round:hover .btn-click,
+.contact-header .btn-round.active .btn-click,
+.contact-header .btn-round:active .btn-click,
+.contact-header.theme-dark .btn-round:hover .btn-click,
+.contact-header.theme-dark .btn-round.active .btn-click,
+.contact-header.theme-dark .btn-round:active .btn-click {
+    box-shadow: inset 0px 0px 0px 1px transparent !important;
+    -webkit-box-shadow: inset 0px 0px 0px 1px transparent !important;
+}
+
+.contact-header input.form-btn,
+.contact-header input#form-submit-btn,
+.contact-header.theme-dark input.form-btn,
+.contact-header.theme-dark input#form-submit-btn {
+    color: #0a192f !important;
+    transition: color 0.3s ease;
+}
+
+.contact-header .btn-round:hover input.form-btn,
+.contact-header .btn-round.active input.form-btn,
+.contact-header .btn-round:active input.form-btn,
+.contact-header .btn-round:hover input#form-submit-btn,
+.contact-header .btn-round.active input#form-submit-btn,
+.contact-header .btn-round:active input#form-submit-btn,
+.contact-header.theme-dark .btn-round:hover input.form-btn,
+.contact-header.theme-dark .btn-round.active input.form-btn,
+.contact-header.theme-dark .btn-round:active input.form-btn,
+.contact-header.theme-dark .btn-round:hover input#form-submit-btn,
+.contact-header.theme-dark .btn-round.active input#form-submit-btn,
+.contact-header.theme-dark .btn-round:active input#form-submit-btn {
+    color: #FFFFFF !important;
+}
+
+.contact-header .btn-link:hover .btn-click .btn-text-inner,
+.contact-header.theme-dark .btn-link:hover .btn-click .btn-text-inner {
+    color: #0a192f !important;
+}
+</style>
+<style id="white-theme-protection">
+/* Protección de fondo blanco puro para Sobre mí y Proyectos */
+.line-globe,
+.about-image,
+.about-services,
+.about-header,
+main#about,
+main#work,
+main#work .section,
+main#work .work-header,
+main#work .work-filters,
+main#work .section-wrap-work,
+main#work .work-grid,
+main#work .footer-wrap,
+main#work .footer {
+    background-color: #FFFFFF !important;
+}
+.work-filters .toggle-row .btn-normal {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+/* Loading screen & transition words: texto y punto azul oscuro sobre fondo blanco */
+.loading-screen,
+.loading-container .rounded-div-wrap.top .rounded-div,
+.loading-container .rounded-div-wrap.bottom .rounded-div {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+}
+.loading-container .loading-words h2 {
+    color: #0a192f !important;
+}
+.loading-container .dot {
+    background: #0a192f !important;
+    background-color: #0a192f !important;
+}
+</style>
+<style id="home-typography-styles">
+/* Home Header y Footer: tipografía oscura sobre fondo blanco */
+.home-header h1,
+.home-header h1 span,
+.home-header h4,
+.home-header h4 span,
+.home-header p,
+.home-header p span,
+.home-header.theme-dark h1,
+.home-header.theme-dark h1 span,
+.home-header.theme-dark h4,
+.home-header.theme-dark h4 span,
+.home-header.theme-dark p,
+.home-header.theme-dark p span,
+.home-header .big-name h1,
+.home-header .big-name h1 span,
+.home-header .name-h1 h1,
+.home-header .name-wrap h1,
+main#home .home-header h1,
+main#home .home-header h4 {
+    color: #0a192f !important;
+}
+
+.home-header svg g#Artboard,
+.home-header svg polyline,
+.home-header svg line,
+.home-header svg path,
+.home-header.theme-dark svg g#Artboard,
+.home-header.theme-dark svg polyline,
+.home-header.theme-dark svg line,
+.home-header.theme-dark svg path {
+    stroke: #0a192f !important;
+}
+
+.footer-wrap.theme-dark h2,
+.footer-wrap.theme-dark h2 span,
+.footer-wrap.theme-dark p,
+.footer-wrap h2,
+.footer-wrap h2 span,
+.footer-wrap p,
+.footer h2,
+.footer h2 span,
+.footer p,
+main#home .footer h2,
+main#home .footer h2 span {
+    color: #0a192f !important;
+}
+
+.footer-wrap.theme-dark .arrow svg g#Artboard,
+.footer-wrap.theme-dark .arrow svg polyline,
+.footer-wrap.theme-dark .arrow svg line,
+.footer-wrap.theme-dark .arrow svg path,
+.footer-wrap .arrow svg g#Artboard,
+.footer-wrap .arrow svg polyline,
+.footer-wrap .arrow svg line,
+.footer-wrap .arrow svg path {
+    stroke: #0a192f !important;
+}
+
+.footer-wrap.theme-dark .btn-normal .btn-click {
+    box-shadow: inset 0px 0px 0px 1px #0a192f !important;
+    -webkit-box-shadow: inset 0px 0px 0px 1px #0a192f !important;
+    transition: box-shadow 0.3s ease;
+}
+
+.footer-wrap.theme-dark .btn-normal:hover .btn-click {
+    box-shadow: inset 0px 0px 0px 1px transparent !important;
+    -webkit-box-shadow: inset 0px 0px 0px 1px transparent !important;
+}
+
+.footer-wrap.theme-dark .btn-normal .btn-text .btn-text-inner {
+    color: #0a192f !important;
+    transition: color 0.3s ease;
+}
+
+.footer-wrap.theme-dark .btn-normal:hover .btn-text .btn-text-inner {
+    color: #FFFFFF !important;
+}
+
+.footer-wrap.theme-dark .stripe {
+    background-color: #0a192f !important;
+}
+</style>
 </head>
 
 <body data-barba="wrapper">
@@ -6327,6 +6552,89 @@ main#work .footer, main#archive .footer {
 </div>
 </div>
 <main class="main" data-barba="container" data-barba-namespace="home" id="home">
+<style id="home-typography-styles">
+/* Home Header y Footer: tipografía oscura sobre fondo blanco */
+.home-header h1,
+.home-header h1 span,
+.home-header h4,
+.home-header h4 span,
+.home-header p,
+.home-header p span,
+.home-header.theme-dark h1,
+.home-header.theme-dark h1 span,
+.home-header.theme-dark h4,
+.home-header.theme-dark h4 span,
+.home-header.theme-dark p,
+.home-header.theme-dark p span,
+.home-header .big-name h1,
+.home-header .big-name h1 span,
+.home-header .name-h1 h1,
+.home-header .name-wrap h1,
+main#home .home-header h1,
+main#home .home-header h4 {
+    color: #0a192f !important;
+}
+
+.home-header svg g#Artboard,
+.home-header svg polyline,
+.home-header svg line,
+.home-header svg path,
+.home-header.theme-dark svg g#Artboard,
+.home-header.theme-dark svg polyline,
+.home-header.theme-dark svg line,
+.home-header.theme-dark svg path {
+    stroke: #0a192f !important;
+}
+
+.footer-wrap.theme-dark h2,
+.footer-wrap.theme-dark h2 span,
+.footer-wrap.theme-dark p,
+.footer-wrap h2,
+.footer-wrap h2 span,
+.footer-wrap p,
+.footer h2,
+.footer h2 span,
+.footer p,
+main#home .footer h2,
+main#home .footer h2 span {
+    color: #0a192f !important;
+}
+
+.footer-wrap.theme-dark .arrow svg g#Artboard,
+.footer-wrap.theme-dark .arrow svg polyline,
+.footer-wrap.theme-dark .arrow svg line,
+.footer-wrap.theme-dark .arrow svg path,
+.footer-wrap .arrow svg g#Artboard,
+.footer-wrap .arrow svg polyline,
+.footer-wrap .arrow svg line,
+.footer-wrap .arrow svg path {
+    stroke: #0a192f !important;
+}
+
+.footer-wrap.theme-dark .btn-normal .btn-click {
+    box-shadow: inset 0px 0px 0px 1px #0a192f !important;
+    -webkit-box-shadow: inset 0px 0px 0px 1px #0a192f !important;
+    transition: box-shadow 0.3s ease;
+}
+
+.footer-wrap.theme-dark .btn-normal:hover .btn-click {
+    box-shadow: inset 0px 0px 0px 1px transparent !important;
+    -webkit-box-shadow: inset 0px 0px 0px 1px transparent !important;
+}
+
+.footer-wrap.theme-dark .btn-normal .btn-text .btn-text-inner {
+    color: #0a192f !important;
+    transition: color 0.3s ease;
+}
+
+.footer-wrap.theme-dark .btn-normal:hover .btn-text .btn-text-inner {
+    color: #FFFFFF !important;
+}
+
+.footer-wrap.theme-dark .stripe {
+    background-color: #0a192f !important;
+}
+</style>
 <div class="mouse-pos-list-image no-select">
 <div class="mouse-pos-list-image-bounce overlay">
 <div class="float-image-wrap">
@@ -8110,7 +8418,7 @@ function initScrolltriggerAnimations() {
           backgroundColor: "#FFFFFF",
         })
         tl.to(targetElement, {
-          backgroundColor: "#E9EAEB",
+          backgroundColor: "#FFFFFF",
           ease: "none",
         });
       });
