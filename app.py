@@ -7,7 +7,7 @@ from datetime import datetime
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import threading
+from concurrent.futures import ThreadPoolExecutor
 
 import requests
 from dotenv import load_dotenv
@@ -25,23 +25,37 @@ DB_PATH = BASE_DIR / "messages.db"
 load_dotenv()
 
 app = Flask(__name__, static_folder=None)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY") or os.urandom(24).hex()
 Compress(app)
 
-# Habilitar CSP y HTTPS en producción
+# Pool controlado de hilos para envío de correos asíncronos sin agotar recursos
+mail_executor = ThreadPoolExecutor(max_workers=3, thread_name_prefix="mail_worker")
+
+# Habilitar CSP y HTTPS en producción respetando estrictamente los estilos y scripts del diseño
 is_prod = os.environ.get("FLASK_ENV") == "production" or os.environ.get("RENDER") == "true"
 csp = {
-    'default-src': ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+    'default-src': ["'self'"],
+    'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://code.jquery.com", "https://cdnjs.cloudflare.com"],
+    'style-src': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
+    'font-src': ["'self'", "https://fonts.gstatic.com", "data:"],
     'img-src': ["'self'", "data:", "https:"],
+    'connect-src': ["'self'"],
 }
 Talisman(app, content_security_policy=csp if is_prod else None, force_https=is_prod)
 
 if is_prod:
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
-limiter = Limiter(get_remote_address, app=app, default_limits=["300 per day", "100 per hour"])
+# Backend explícito para Limiter (permite Redis mediante RATELIMIT_STORAGE_URI o fallback a memoria sin advertencias)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["300 per day", "100 per hour"],
+    storage_uri=os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
+)
 
 def init_db():
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect(DB_PATH, timeout=30.0) as conn:
         conn.execute("PRAGMA journal_mode=WAL;")
         cursor = conn.cursor()
         cursor.execute('''
@@ -63,7 +77,7 @@ def init_db():
             if col_name not in cols:
                 try:
                     cursor.execute(f"ALTER TABLE messages ADD COLUMN {col_name} TEXT")
-                except Exception:
+                except sqlite3.OperationalError:
                     pass
         conn.commit()
 
@@ -75,7 +89,9 @@ def _safe_send(relative_path: str):
         abort(404)
     if not file_path.is_file():
         abort(404)
-    return send_from_directory(PUBLIC_DIR, relative_path)
+    # Cache estático de 1 año (31536000 s) para assets y fuentes
+    max_age = 31536000 if any(relative_path.startswith(prefix) for prefix in ["assets/", "fonts/"]) else None
+    return send_from_directory(PUBLIC_DIR, relative_path, max_age=max_age)
 
 @app.get("/")
 def home():
@@ -83,7 +99,7 @@ def home():
 
 @app.get("/assets/<path:filename>")
 def assets(filename: str):
-    return send_from_directory(PUBLIC_DIR / "assets", filename)
+    return send_from_directory(PUBLIC_DIR / "assets", filename, max_age=31536000)
 
 @app.get("/api/test-email")
 @limiter.limit("10 per day")
@@ -113,8 +129,9 @@ def test_email():
         server.quit()
         return jsonify({"ok": True, "message": f"Correo de prueba enviado con éxito a {smtp_user}"})
     except Exception as e:
-        app.logger.error("Error en test-email: %s", str(e))
+        app.logger.exception("Error en test-email: %s", str(e))
         return jsonify({"ok": False, "error": str(e)}), 500
+
 
 @app.get("/<path:requested_path>")
 def static_files(requested_path: str):
@@ -186,9 +203,9 @@ def _send_email_async(smtp_user, smtp_password, email, name, message, source, co
         server.login(smtp_user, smtp_password)
         server.send_message(msg)
         server.quit()
-        print(f" Correo enviado exitosamente a {smtp_user} (Cliente: {email}, Origen: {source or 'formulario'})")
+        app.logger.info("Correo enviado exitosamente a %s (Cliente: %s, Origen: %s)", smtp_user, email, source or 'formulario')
     except Exception as e:
-        print(f" Error al enviar el correo SMTP: {str(e)}")
+        app.logger.exception("Error al enviar el correo SMTP asíncrono: %s", str(e))
 
 @app.post("/api/send-message")
 @limiter.limit("15 per minute")
@@ -215,7 +232,7 @@ def send_message():
         return jsonify({"error": "Los campos superan la longitud máxima permitida"}), 400
 
     try:
-        with sqlite3.connect(DB_PATH) as conn:
+        with sqlite3.connect(DB_PATH, timeout=30.0) as conn:
             cursor = conn.cursor()
             cursor.execute(
                 "INSERT INTO messages (name, email, message, company, service, source, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -224,142 +241,22 @@ def send_message():
             conn.commit()
         app.logger.info("Mensaje guardado en DB: %s <%s> (source: %s)", name, email, source or "formulario")
         
-        # Enviar correo de manera asíncrona
+        # Enviar correo de manera asíncrona mediante ThreadPoolExecutor controlado
         smtp_user = os.environ.get("MAIL_USERNAME")
         smtp_password = os.environ.get("MAIL_PASSWORD", "").replace(" ", "")
         
         if smtp_user and smtp_password:
-            threading.Thread(
-                target=_send_email_async,
-                args=(smtp_user, smtp_password, email, name, message, source, company, service)
-            ).start()
+            mail_executor.submit(
+                _send_email_async,
+                smtp_user, smtp_password, email, name, message, source, company, service
+            )
         else:
             app.logger.warning("Credenciales SMTP no configuradas. El mensaje se guardó en BD pero no se envió correo.")
 
         return jsonify({"ok": True, "message": "¡Mensaje recibido y enviado correctamente!"}), 200
     except Exception as e:
-        app.logger.error("Error procesando mensaje: %s", str(e))
+        app.logger.exception("Error procesando mensaje en /api/send-message: %s", str(e))
         return jsonify({"error": "Error interno al procesar el mensaje"}), 500
-
-@app.post("/api/chat")
-@limiter.limit("15 per minute")
-def chat_endpoint():
-    payload = request.get_json(silent=True) or {}
-    user_message = str(payload.get("message", "")).strip()
-    history = payload.get("history", [])
-
-    if not user_message or len(user_message) > 500:
-        return jsonify({"error": "Mensaje inválido o demasiado largo"}), 400
-
-    api_key = os.environ.get("GROQ_API_KEY")
-    if not api_key:
-        return jsonify({"error": "Falta configurar la variable GROQ_API_KEY en el servidor"}), 500
-
-    url = "https://api.groq.com/openai/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-    
-    system_instruction = (
-        "Tu nombre es NØVA. Eres la asistente de IA personal de Abner Franco, integrada en su portafolio web abnerfranco.me. "
-        "Habla como una persona real que está atendiendo — nada de listas robóticas ni frases de manual. "
-        "Sé cercana, directa y natural. Usa español coloquial pero profesional, como alguien que de verdad te está ayudando. "
-        "Puedes usar emojis con moderación. Respuestas cortas y al punto, no te enrolles.\n\n"
-        
-        "PROYECTOS DE ABNER:\n"
-        "- Teleprompter By AF: app web para creadores de contenido, ajusta velocidad y texto en vivo. JS puro, GitHub Pages.\n"
-        "- INSAM Salud: plataforma de gestión hospitalaria para estudiantes. Python/Flask/SQL, en DigitalOcean.\n"
-        "- FarmacoLandia: juego web interactivo para aprender farmacología. JS + CSS.\n"
-        "- Este portafolio: plataforma web multi-página (Inicio, Proyectos, Sobre mí, Contacto, Archivo) desarrollada con Python/Flask y un diseño editorial interactivo de alto impacto.\n\n"
-        
-        "SOBRE ABNER:\n"
-        "- Estudiante de 2° año de Laboratorio Químico en ITCA-FEPADE + Desarrollador Web.\n"
-        "- Maneja Python, Flask, SQL, HTML/CSS/JS, Git, IA/Prompt Engineering, análisis químico.\n"
-        "- Trabajó como Ejecutivo de Venta en Crece Centro América y Auxiliar en Advance Energy (energías renovables).\n\n"
-        
-        "ENVÍO DE MENSAJES — FUNCIÓN ESPECIAL:\n"
-        "Si alguien quiere contactar a Abner, mandarle un mensaje, o hablar con él sobre trabajo/proyectos, "
-        "TÚ PUEDES recopilar sus datos y enviarlo directamente. Haz esto de forma NATURAL, paso a paso:\n"
-        "1. Pregunta su nombre de forma casual\n"
-        "2. Luego pide su correo electrónico\n"
-        "3. Finalmente pregunta qué le quiere decir a Abner\n"
-        "NO pidas los 3 datos de golpe. Uno por uno, conversando.\n\n"
-        
-        "IMPORTANTE — Cuando ya tengas los 3 datos (nombre, email y mensaje), incluye AL FINAL de tu respuesta "
-        "este bloque EXACTO (el usuario no lo verá, el sistema lo procesa):\n"
-        "<!--CONTACT_DATA:{\"name\":\"NOMBRE\",\"email\":\"EMAIL\",\"message\":\"MENSAJE\"}-->\n"
-        "Reemplaza NOMBRE, EMAIL y MENSAJE con los datos reales del usuario. "
-        "En tu texto visible, confirma que ya enviaste el mensaje y que Abner responderá pronto.\n\n"
-        
-        "LÍMITES:\n"
-        "- No inventes proyectos ni datos que no estén aquí.\n"
-        "- Temas fuera del ámbito de Abner, tecnología o química → redirige amablemente al portafolio.\n"
-        "- Nunca pidas contraseñas, tarjetas, DUI ni datos médicos sensibles."
-    )
-
-    messages = [{"role": "system", "content": system_instruction}]
-    
-    # Limitar historial a los últimos 10 mensajes para no exceder tokens
-    for msg in history[-10:]:
-        role = msg.get("role")
-        content = msg.get("content")
-        if role in ["user", "assistant"] and isinstance(content, str):
-            messages.append({"role": role, "content": content})
-            
-    messages.append({"role": "user", "content": user_message})
-
-    model_name = os.environ.get("GROQ_MODEL", "openai/gpt-oss-20b")
-    body = {
-        "model": model_name,
-        "messages": messages,
-        "temperature": 0.8,
-        "max_tokens": 350
-    }
-
-    try:
-        res = requests.post(url, headers=headers, json=body, timeout=10)
-        res.raise_for_status()
-        data = res.json()
-        bot_reply = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
-        if not bot_reply:
-            bot_reply = "Lo siento, no pude generar una respuesta en este momento."
-
-        # Procesar datos de contacto recopilados por la IA
-        contact_match = re.search(r'<!--CONTACT_DATA:\s*(\{.*?\})\s*-->', bot_reply)
-        if contact_match:
-            try:
-                contact_info = json.loads(contact_match.group(1))
-                c_name = str(contact_info.get("name", "")).strip()
-                c_email = str(contact_info.get("email", "")).strip()
-                c_msg = str(contact_info.get("message", "")).strip()
-                
-                if c_name and c_email and c_msg:
-                    with sqlite3.connect(DB_PATH) as conn:
-                        cursor = conn.cursor()
-                        cursor.execute(
-                            "INSERT INTO messages (name, email, message, company, service, source, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                            (c_name, c_email, c_msg, "", "", "nova-ai", datetime.now().isoformat())
-                        )
-                        conn.commit()
-                    
-                    smtp_user = os.environ.get("MAIL_USERNAME")
-                    smtp_password = os.environ.get("MAIL_PASSWORD", "").replace(" ", "")
-                    if smtp_user and smtp_password:
-                        threading.Thread(
-                            target=_send_email_async,
-                            args=(smtp_user, smtp_password, c_email, c_name, c_msg, "nova-ai")
-                        ).start()
-            except Exception as parse_err:
-                app.logger.error("Error al procesar CONTACT_DATA del chatbot: %s", str(parse_err))
-            
-            # Limpiar la etiqueta oculta de la respuesta al usuario
-            bot_reply = re.sub(r'<!--CONTACT_DATA:\s*\{.*?\}\s*-->', '', bot_reply).strip()
-
-        return jsonify({"reply": bot_reply}), 200
-    except Exception as e:
-        app.logger.error("Error en Groq API: %s", str(e))
-        return jsonify({"error": "Error al comunicarse con el servicio de IA"}), 502
 
 if __name__ == "__main__":
     app.run(
