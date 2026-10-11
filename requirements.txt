@@ -1,23 +1,29 @@
 # ============================================================================
 # DEPENDENCIAS DE PRODUCCIÓN - Backend Flask Optimizado
 # ============================================================================
+# [SEGURIDAD] Versiones actualizadas para corregir CVEs conocidos en:
+#   - Werkzeug 3.0.1  (CVE-2024-34069 debugger RCE, CVE-2024-49766/49767, CVE-2025-66221)
+#   - Jinja2 3.1.2    (CVE-2024-22195, CVE-2024-34064, CVE-2024-56201, CVE-2024-56326, CVE-2025-27516)
+#   - gunicorn 21.2.0 (CVE-2024-1135 / CVE-2024-6827 HTTP request smuggling)
+#   - Flask 3.0.0     (CVE-2025-47278)
+#   - requests 2.31.0 (CVE-2024-35195, CVE-2024-47081) -> eliminado: no se utilizaba
 
 # Framework Web
-Flask==3.0.0
-gunicorn==21.2.0
+Flask==3.1.3
+gunicorn==23.0.0
 
 # Seguridad y Performance
-Flask-Limiter==3.5.0        # Rate limiting para prevenir abuso
-Flask-Compress==1.14        # Compresión gzip automática
-flask-talisman==1.1.0       # Headers de seguridad (CSP, HSTS, etc)
+Flask-Limiter==3.12        # Rate limiting para prevenir abuso
+Flask-Compress==1.17       # Compresión gzip automática
+flask-talisman==1.1.0      # Headers de seguridad (CSP, HSTS, etc)
 
-# API y Entorno
-requests==2.31.0
-python-dotenv==1.0.0
+# Entorno
+python-dotenv==1.2.4
 
 # Dependencias de Flask
-Werkzeug==3.0.1
-click==8.1.7
-itsdangerous==2.1.2
-Jinja2==3.1.2
-MarkupSafe==2.1.3
+Werkzeug==3.1.9
+click==8.1.8
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.2
+blinker==1.9.0

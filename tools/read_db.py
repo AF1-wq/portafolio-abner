@@ -1,9 +1,12 @@
+import os
 import sqlite3
 import sys
 
 def main():
     try:
-        conn = sqlite3.connect('c:/Users/abner/Downloads/MI-PORTAFOLIO/messages.db')
+        # Ruta relativa al proyecto (antes estaba hardcodeada una ruta personal del equipo)
+        db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'messages.db')
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         cursor.execute("SELECT id, name, email, message, timestamp FROM messages ORDER BY id DESC LIMIT 5")
         rows = cursor.fetchall()
