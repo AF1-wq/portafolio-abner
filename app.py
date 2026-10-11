@@ -26,7 +26,7 @@ DB_PATH = BASE_DIR / "messages.db"
 load_dotenv()
 
 # Habilitar CSP y HTTPS en producción respetando estrictamente los estilos y scripts del diseño
-is_prod = os.environ.get("FLASK_ENV") == "production" or os.environ.get("RENDER") == "true"
+is_prod = os.environ.get("FLASK_ENV") == "production" or os.environ.get("RENDER") == "true" or "DYNO" in os.environ
 
 app = Flask(__name__, static_folder=None)
 
