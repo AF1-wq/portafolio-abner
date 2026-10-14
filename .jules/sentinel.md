@@ -1,0 +1,4 @@
+## 2023-10-24 - CSRF Prevention via Strict Content-Type
+**Vulnerability:** The `/api/send-message` endpoint allowed standard form submissions (e.g., `application/x-www-form-urlencoded`) as a fallback to missing JSON data. This bypassed CORS preflight checks, creating a Cross-Site Request Forgery (CSRF) vulnerability if an attacker crafted a form submitting to this endpoint on a malicious site.
+**Learning:** Accepting `request.form` alongside JSON bypasses the browser's CORS preflight requirement. Simple requests (like standard form submissions) don't trigger `OPTIONS` preflight, so the browser sends the POST directly.
+**Prevention:** Strictly enforce `application/json` Content-Type using `request.is_json` and reject other content types (e.g., with 415 status). This forces any cross-origin POST to use a custom Content-Type, triggering a CORS preflight which will fail if the origin is not explicitly allowed.
