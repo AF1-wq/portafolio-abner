@@ -1,0 +1,4 @@
+## 2024-03-24 - Enforce application/json to prevent CSRF
+**Vulnerability:** The `/api/send-message` endpoint allowed simple form submissions (`application/x-www-form-urlencoded`) by falling back to `request.form.to_dict()`. This created a Cross-Site Request Forgery (CSRF) vulnerability where a malicious site could submit a `<form>` to the endpoint without needing to read the response.
+**Learning:** Even if an API is intended for AJAX/fetch calls with JSON, silently falling back to accepting form data re-introduces CSRF risks associated with standard HTML forms. Browsers automatically send cookies with cross-origin form submissions but enforce CORS preflight checks for `application/json`.
+**Prevention:** Strictly enforce `application/json` Content-Type for state-changing API endpoints unless CSRF tokens are implemented for form data. Reject other content types with `415 Unsupported Media Type`.
