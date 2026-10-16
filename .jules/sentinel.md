@@ -1,0 +1,4 @@
+## 2024-10-16 - Enforce application/json to Prevent CSRF
+**Vulnerability:** Simple cross-origin forms could bypass CSRF protections because the `api/send-message` endpoint allowed standard form encoded submissions. These kinds of submissions (`application/x-www-form-urlencoded` or `multipart/form-data`) don't trigger a CORS preflight options request.
+**Learning:** Checking `is_json` and returning a 415 error is an effective defense against CSRF in REST APIs. The browser will block the AJAX preflight options request on cross-origin boundaries, and standard simple forms will be blocked by the server.
+**Prevention:** Always enforce `application/json` Content-Type on endpoints that process JSON, especially ones that create state or are sensitive, rather than silently falling back to `request.form`.
