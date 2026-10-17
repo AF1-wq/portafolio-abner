@@ -7442,6 +7442,643 @@ main#home .footer h2 span {
     background-color: #0a192f !important;
 }
 </style>
+<style id="mobile-optimization-styles">
+/* ==========================================================================
+   OPTIMIZACIÓN MOBILE & CROSS-PAGE BARBA.JS SPA (RESPETANDO PC > 768px)
+   Cumple estrictamente REGLA-COLORES.md (Fondo #FFFFFF, texto #0a192f)
+   ========================================================================== */
+
+/* 1. Estilos compartidos para transiciones Barba.js hacia Sobre mí */
+.about-identity-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    height: 100%;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+}
+.identity-initials {
+    font-size: clamp(5rem, 12vw, 10rem);
+    font-weight: 300;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: #0B0B0B;
+    user-select: none;
+}
+.identity-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+.identity-tags span {
+    display: inline-block;
+    border: 1px solid rgba(11, 11, 11, 0.2);
+    border-radius: 100px;
+    padding: 0.35em 0.9em;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #0B0B0B;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+/* 2. Correcciones globales de visibilidad en menú lateral y flecha de About */
+.fixed-nav h5,
+.fixed-nav.theme-dark h5 {
+    color: #64748b !important;
+    opacity: 1 !important;
+}
+.fixed-nav .nav-row .btn-link.active .btn-click::after,
+.fixed-nav .nav-row .btn-link .btn-click::after {
+    background: var(--color-blue) !important;
+    background-color: var(--color-blue) !important;
+}
+.about-image .flex-col:nth-child(1) .arrow svg g,
+.about-image .arrow svg g#Artboard,
+.about-image .arrow svg path,
+.about-image .arrow svg polyline,
+.about-image .arrow svg line {
+    stroke: #0a192f !important;
+}
+
+/* 3. Estado activo del botón hamburguesa (.toggle) en pantallas táctiles */
+.btn-hamburger.active .toggle span:nth-child(1),
+.btn-menu.active .toggle span:nth-child(1),
+main.nav-active .toggle span:nth-child(1) {
+    width: 40px;
+    transform: translateY(0px) rotate(45deg);
+    transition-delay: 0.125s;
+}
+.btn-hamburger.active .toggle span:nth-child(2),
+.btn-menu.active .toggle span:nth-child(2),
+main.nav-active .toggle span:nth-child(2) {
+    width: 40px;
+    transform: translateY(0px) rotate(315deg);
+    transition-delay: 0.125s;
+}
+.btn-hamburger.active .toggle span:nth-child(3),
+.btn-menu.active .toggle span:nth-child(3),
+main.nav-active .toggle span:nth-child(3) {
+    transform: translateX(60px);
+    opacity: 0;
+}
+
+@media (hover: none), (pointer: coarse) {
+    main:not(.nav-active) .btn-hamburger:not(.active) .toggle:hover span:nth-child(1),
+    main:not(.nav-active) .btn-menu:not(.active) .toggle:hover span:nth-child(1) {
+        width: 18px;
+        transform: translateY(-8px) rotate(0deg);
+    }
+    main:not(.nav-active) .btn-hamburger:not(.active) .toggle:hover span:nth-child(2),
+    main:not(.nav-active) .btn-menu:not(.active) .toggle:hover span:nth-child(2) {
+        width: 12px;
+        transform: translateY(8px) rotate(0deg);
+    }
+    main:not(.nav-active) .btn-hamburger:not(.active) .toggle:hover span:nth-child(3),
+    main:not(.nav-active) .btn-menu:not(.active) .toggle:hover span:nth-child(3) {
+        transform: translateX(0px);
+        opacity: 1;
+    }
+}
+
+/* 4. Ajustes para Tablets y Móviles (<= 840px) */
+@media screen and (max-width: 840px) {
+    .about-image .flex-col:nth-child(1) {
+        width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: 2rem !important;
+    }
+    .about-image .flex-col:nth-child(2) {
+        width: 100% !important;
+    }
+    .about-identity-block {
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 1rem 0 !important;
+        gap: 1.25rem !important;
+    }
+    .identity-initials {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+    .identity-initials img {
+        width: min(260px, 72vw) !important;
+        max-width: 100% !important;
+        height: auto !important;
+        margin: 0 auto !important;
+    }
+    .identity-tags {
+        justify-content: center !important;
+        gap: 0.5rem !important;
+    }
+    .identity-tags span {
+        white-space: normal !important;
+        text-align: center !important;
+        font-size: 0.72rem !important;
+        padding: 0.4em 0.85em !important;
+    }
+}
+
+/* 5. Optimización Integral Mobile (<= 768px) */
+@media screen and (max-width: 768px) {
+    html, body, main.main, .main-wrap {
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Barra de navegación superior y botón de menú móvil */
+    .nav-bar {
+        height: 4.75rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0 var(--container-padding) !important;
+    }
+    .nav-bar .credits-top {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .nav-bar .links-wrap {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        transform: none !important;
+        height: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+    }
+    .nav-bar .links-wrap li.btn-menu {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: auto !important;
+        margin: 0 !important;
+    }
+    .nav-bar .links-wrap li.btn-menu .btn-click {
+        height: auto !important;
+        width: auto !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+    .nav-bar .links-wrap li.btn-menu .btn-text {
+        pointer-events: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Botón circular Hamburguesa dimensionado para móvil (50x50px) */
+    .toggle {
+        width: 50px !important;
+        height: 50px !important;
+    }
+    .toggle span {
+        width: 26px !important;
+    }
+    .toggle span:nth-child(1) {
+        transform: translateY(-8px) !important;
+        width: 18px !important;
+        left: 12px !important;
+    }
+    .toggle span:nth-child(2) {
+        transform: translateY(8px) !important;
+        width: 12px !important;
+        left: 12px !important;
+    }
+    .btn-hamburger.active .toggle span:nth-child(1),
+    .btn-menu.active .toggle span:nth-child(1),
+    main.nav-active .toggle span:nth-child(1) {
+        width: 26px !important;
+        left: 12px !important;
+        transform: translateY(0px) rotate(45deg) !important;
+    }
+    .btn-hamburger.active .toggle span:nth-child(2),
+    .btn-menu.active .toggle span:nth-child(2),
+    main.nav-active .toggle span:nth-child(2) {
+        width: 26px !important;
+        left: 12px !important;
+        transform: translateY(0px) rotate(315deg) !important;
+    }
+    .btn-hamburger.active .toggle span:nth-child(3),
+    .btn-menu.active .toggle span:nth-child(3),
+    main.nav-active .toggle span:nth-child(3) {
+        transform: translateX(50px) !important;
+        opacity: 0 !important;
+    }
+    .btn-hamburger {
+        top: 0.85rem !important;
+        right: var(--container-padding) !important;
+        width: 50px !important;
+        height: 50px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Menú lateral desplegable (.fixed-nav) en móvil */
+    .fixed-nav-inner {
+        padding: 6.5rem var(--container-padding) 2.5rem var(--container-padding) !important;
+        justify-content: space-between !important;
+        overflow-y: auto !important;
+    }
+    .fixed-nav .nav-row ul.links-wrap {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 0.75rem 0 !important;
+    }
+    .fixed-nav .nav-row ul.links-wrap li.btn-link {
+        height: auto !important;
+        margin: 0 !important;
+    }
+    .fixed-nav .nav-row ul.links-wrap a {
+        font-size: clamp(2rem, 8.5vw, 2.65rem) !important;
+        line-height: 1.25 !important;
+        padding: 0.15em 0 !important;
+        height: auto !important;
+    }
+    .fixed-nav .social-row ul {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem 1rem !important;
+        align-items: center !important;
+        margin-top: 0.35rem !important;
+    }
+    .fixed-nav .social-row li.btn {
+        display: inline-flex !important;
+        height: auto !important;
+    }
+    .fixed-nav .social-row li.btn .btn-click {
+        height: 2.25em !important;
+        padding: 0 !important;
+    }
+
+    /* Filtros de Proyectos (work.html) adaptables sin desborde horizontal */
+    main#work .work-header,
+    main#archive .archive-header {
+        padding-top: 6.5rem !important;
+        padding-bottom: 2rem !important;
+    }
+    .work-header .container .row .flex-col h1 {
+        font-size: clamp(2.1rem, 9vw, 3.2rem) !important;
+        line-height: 1.15 !important;
+    }
+    main#work .work-filters {
+        margin-bottom: 1.75rem !important;
+    }
+    .work-filters .filter-row {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    .work-filters .filter-row .toggle-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+    }
+    .work-filters .filter-row .toggle-row .btn {
+        margin: 0 !important;
+        flex: 1 1 calc(50% - 0.5rem) !important;
+        min-width: 130px !important;
+    }
+    .work-filters .filter-row .toggle-row .btn-normal .btn-click {
+        width: 100% !important;
+        height: 3.2em !important;
+        padding: 0 1em !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .work-filters .filter-row .toggle-row .btn-normal .btn-text-inner {
+        font-size: 0.92rem !important;
+        white-space: nowrap !important;
+    }
+}
+
+/* 6. Optimización de Secciones para Smartphones (<= 720px) */
+@media screen and (max-width: 720px) {
+    /* Home Hero (index.html): elimina el espacio vacío de 55vh arriba y ordena el contenido */
+    .home-header {
+        min-height: auto !important;
+        padding-top: 6.25rem !important;
+        padding-bottom: 2.5rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+    }
+    .home-header .big-name {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        width: 100% !important;
+        order: 1 !important;
+        margin: 0.75rem 0 1.25rem 0 !important;
+    }
+    .home-header .big-name h1 {
+        font-size: clamp(3.4rem, 15.5vw, 6rem) !important;
+        line-height: 1.05 !important;
+    }
+    .home-header .container {
+        order: 2 !important;
+        width: 100% !important;
+    }
+    .home-header .row {
+        padding-bottom: 0 !important;
+    }
+    .home-header .row .flex-col {
+        padding-bottom: 0 !important;
+    }
+    .home-header .row .flex-col .header-above-h4 {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        margin-bottom: 0.65rem !important;
+    }
+    .home-header h4 {
+        font-size: clamp(1.3rem, 5.2vw, 1.75rem) !important;
+        line-height: 1.35 !important;
+    }
+
+    /* Home Intro (index.html): alinea texto y centra botón circular "Sobre mí" sin corte lateral */
+    .home-intro {
+        padding-top: 2.5rem !important;
+        padding-bottom: 3.5rem !important;
+    }
+    .home-intro .row {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1.5rem !important;
+    }
+    .home-intro .flex-col:nth-child(1),
+    .home-intro .flex-col:nth-child(2) {
+        width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: 0 !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+    }
+    .home-intro .flex-col:nth-child(1) h4 {
+        font-size: clamp(1.35rem, 5.5vw, 1.75rem) !important;
+        line-height: 1.4 !important;
+    }
+    .home-intro .flex-col:nth-child(2) p {
+        max-width: 100% !important;
+        margin-bottom: 1.75rem !important;
+        font-size: 1.02rem !important;
+        line-height: 1.6 !important;
+    }
+    .home-intro .flex-col:nth-child(2) .btn {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        align-self: center !important;
+        margin: 0 auto !important;
+    }
+
+    /* Tarjetas de Proyectos en móvil (index.html y work.html) */
+    .work-tiles {
+        padding-top: 1rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+    .work-tiles li {
+        padding-bottom: 2.5rem !important;
+    }
+    .work-tiles li .single-tile-wrap a .flex-col:nth-child(1) {
+        margin-bottom: 1rem !important;
+    }
+    .work-tiles li .single-tile-wrap a .tile-image {
+        border-radius: 16px !important;
+        overflow: hidden !important;
+    }
+    .work-tiles li .single-tile-wrap a .tile-image::before {
+        padding-top: 66% !important;
+    }
+    .work-tiles li .single-tile-wrap a .flex-col:nth-child(2) {
+        margin-bottom: 0.75rem !important;
+    }
+    .work-tiles li .single-tile-wrap a .flex-col:nth-child(2) h4 {
+        font-size: clamp(1.5rem, 6.5vw, 2rem) !important;
+        padding-bottom: 0.5rem !important;
+    }
+    .work-tiles li .single-tile-wrap a .flex-col:nth-child(3) {
+        width: 100% !important;
+        padding-right: 0 !important;
+        margin-bottom: 0.4rem !important;
+    }
+    .work-tiles li .single-tile-wrap a .flex-col:nth-child(3) p {
+        font-size: 0.95rem !important;
+        line-height: 1.5 !important;
+    }
+    .work-tiles li .single-tile-wrap a .flex-col:nth-child(4) {
+        width: 100% !important;
+        text-align: left !important;
+    }
+    .work-tiles li .single-tile-wrap a .flex-col:nth-child(4) p {
+        text-align: left !important;
+        font-size: 0.85rem !important;
+        opacity: 0.65 !important;
+    }
+    .section.center-grid-btn {
+        padding-bottom: 3.5rem !important;
+    }
+    .center-grid-btn .btn-click {
+        height: 3.8em !important;
+        padding: 0 2em !important;
+        max-width: 100% !important;
+    }
+
+    /* Sobre mí (about.html) en móvil */
+    .about-header {
+        padding-top: 6.5rem !important;
+        padding-bottom: 2rem !important;
+    }
+    .about-header h1 {
+        font-size: clamp(2.1rem, 9vw, 3.2rem) !important;
+        line-height: 1.15 !important;
+    }
+    .about-image {
+        padding-bottom: 2rem !important;
+    }
+    .about-services {
+        padding-top: 2rem !important;
+        padding-bottom: 3rem !important;
+    }
+    .about-services .row:nth-child(1) {
+        padding-bottom: 1.5rem !important;
+    }
+    .about-services .row:nth-child(2) {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1.25rem !important;
+    }
+    .about-services .row:nth-child(2) .flex-col {
+        width: 100% !important;
+        padding: 1.5rem !important;
+        border-radius: 20px !important;
+        border: 1px solid #e2e8f0 !important;
+        background: #f8fafc !important;
+    }
+    .about-services .row:nth-child(2) .flex-col h5:nth-child(1) {
+        display: block !important;
+        padding-bottom: 0.5rem !important;
+        margin-bottom: 0.75rem !important;
+        font-size: 0.85rem !important;
+        color: var(--color-blue) !important;
+        opacity: 1 !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+    .about-services .row:nth-child(2) .flex-col h4 {
+        padding-top: 0 !important;
+        padding-bottom: 0.65rem !important;
+        font-size: 1.35rem !important;
+    }
+    .about-services .row:nth-child(2) .flex-col p {
+        font-size: 0.98rem !important;
+        line-height: 1.55 !important;
+    }
+
+    /* Contacto (contact.html) en móvil */
+    .contact-header {
+        padding-top: 6.5rem !important;
+        padding-bottom: 3.5rem !important;
+    }
+    .contact-header .row:nth-child(1) {
+        padding-bottom: 1.75rem !important;
+    }
+    .contact-header .row:nth-child(1) .flex-col:nth-child(1) h1 {
+        font-size: clamp(2rem, 8.5vw, 3rem) !important;
+        line-height: 1.15 !important;
+    }
+    .contact-header .row:nth-child(1) .flex-col:nth-child(1) h1 span {
+        display: inline !important;
+    }
+    .contact-header .row:nth-child(2) {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 2rem !important;
+    }
+    .contact-header .row:nth-child(2) .flex-col:nth-child(1) {
+        width: 100% !important;
+        padding-right: 0 !important;
+        order: 1 !important;
+    }
+    .contact-header .row:nth-child(2) .flex-col:nth-child(2) {
+        width: 100% !important;
+        padding-left: 0 !important;
+        order: 2 !important;
+    }
+    .contact-header .row:nth-child(2) .flex-col:nth-child(2) .contact-glass-card h5,
+    .contact-header .row:nth-child(2) .flex-col:nth-child(2) h5:last-of-type {
+        display: block !important;
+    }
+    .contact-header .form {
+        padding: 1.35rem 1.15rem 2rem 1.15rem !important;
+        border-radius: 22px !important;
+    }
+    .contact-header .form-col {
+        padding: 1.1rem 0 0.5rem 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    .contact-header .form-col h5 {
+        position: static !important;
+        margin-bottom: 0.35rem !important;
+        font-size: 0.8rem !important;
+        opacity: 0.6 !important;
+    }
+    .contact-header .form-col .label {
+        padding-left: 0.25rem !important;
+        font-size: 1.02rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .contact-header .form-col input,
+    .contact-header .form-col textarea {
+        padding: 14px 16px !important;
+        font-size: 1rem !important;
+        border-radius: 14px !important;
+    }
+    .contact-header .btn-contact-send {
+        float: none !important;
+        transform: none !important;
+        margin: 1.75rem auto 0.5rem auto !important;
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+    .contact-header .btn-contact-send .btn-click {
+        width: clamp(9em, 42vw, 10.5em) !important;
+        height: clamp(9em, 42vw, 10.5em) !important;
+    }
+
+    /* Footer general y botón flotante de Términos en móvil */
+    .footer .container.medium {
+        padding-left: var(--container-padding) !important;
+        padding-right: var(--container-padding) !important;
+    }
+    .footer .container.medium .row:nth-child(1) h2 {
+        font-size: clamp(2.1rem, 9vw, 3.2rem) !important;
+        line-height: 1.15 !important;
+    }
+    .footer .container.medium .row:nth-child(2) {
+        margin: 3.5rem 0 2.75rem 0 !important;
+    }
+    .footer .container.medium .row:nth-child(2) .btn-fixed {
+        left: 50% !important;
+        right: auto !important;
+        top: 0 !important;
+        transform: translate(-50%, -50%) !important;
+    }
+    .footer .container.medium .row:nth-child(3) .flex-col {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+    .footer .container.medium .row:nth-child(3) .btn-normal {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    .footer .container.medium .row:nth-child(3) .btn-normal .btn-click {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 3.75em !important;
+        padding: 0.75em 1.25em !important;
+    }
+    .footer .container.medium .row:nth-child(3) .btn-normal .btn-text-inner {
+        font-size: 0.92rem !important;
+        word-break: break-all !important;
+    }
+    .footer .bottom-footer {
+        padding-bottom: 4.5rem !important;
+    }
+    .floating-terms {
+        bottom: 12px !important;
+        left: 16px !important;
+        font-size: 11px !important;
+        padding: 6px 12px !important;
+    }
+    .modal-content {
+        padding: 24px 20px !important;
+        width: 92% !important;
+        max-height: 82vh !important;
+        border-radius: 16px !important;
+    }
+}
+</style>
 </head>
 
 <body data-barba="wrapper">
@@ -8762,6 +9399,19 @@ function initVisualFilter() {
           setTimeout(function() {
             $('.mouse-pos-list-image li, .mouse-pos-list-image-wrap li, .work-tiles li').removeClass('visible');
             $('.mouse-pos-list-image li.development, .mouse-pos-list-image-wrap li.development, .work-tiles li.development').addClass('visible');
+          }, 300);
+      }
+    });
+    $('.open-source-btn').click(function(){
+      if ($(this).hasClass('active')) {
+      } else {
+          $('.toggle-row .btn-normal').removeClass('active');
+          $('.toggle-row .btn-normal').addClass('not-active');
+          $(this).addClass('active');
+          $(this).removeClass('not-active');
+          setTimeout(function() {
+            $('.mouse-pos-list-image li, .mouse-pos-list-image-wrap li, .work-tiles li').removeClass('visible');
+            $('.mouse-pos-list-image li.design, .mouse-pos-list-image-wrap li.design, .work-tiles li.design').addClass('visible');
           }, 300);
       }
     });
