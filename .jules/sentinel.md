@@ -1,0 +1,4 @@
+## 2023-10-20 - Enforce strict JSON Content-Type to prevent CSRF
+**Vulnerability:** The `/api/send-message` endpoint used a fallback `request.form.to_dict()` if JSON parsing failed. This allowed simple cross-origin form submissions (application/x-www-form-urlencoded), circumventing CORS preflight requests and creating a Cross-Site Request Forgery (CSRF) vulnerability.
+**Learning:** Automatically falling back to parsing form data on JSON endpoints breaks the CSRF protection usually afforded by requiring custom Content-Types (like application/json) that trigger CORS preflight.
+**Prevention:** Strictly enforce `application/json` Content-Type on all sensitive POST/PUT/DELETE endpoints intended for API consumption using `request.is_json`, and do not fall back to form data parsing unless strictly needed and explicitly protected by CSRF tokens.
