@@ -209,7 +209,10 @@ def _safe_send(relative_path: str):
         abort(404)
     # Cache estático de 1 año (31536000 s) para assets y fuentes
     max_age = 31536000 if any(relative_path.startswith(prefix) for prefix in ["assets/", "fonts/"]) else None
-    return send_from_directory(PUBLIC_DIR, relative_path, max_age=max_age)
+    response = send_from_directory(PUBLIC_DIR, relative_path, max_age=max_age)
+    if Path(relative_path).suffix.lower() in {'.webp', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico'}:
+        response.headers['Cross-Origin-Resource-Policy'] = 'cross-origin'
+    return response
 
 @app.get("/")
 def home():
@@ -258,6 +261,9 @@ def test_email():
 
 @app.get("/<path:requested_path>")
 def static_files(requested_path: str):
+    requested_path = requested_path.rstrip('/')
+    if not requested_path:
+        return _safe_send('index.html')
     if requested_path.startswith("api/"):
         abort(404)
 

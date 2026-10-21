@@ -1,0 +1,57 @@
+/* Fuentes reutilizables del portafolio (extraídas de base64 para permitir caché) */
+@font-face {
+    font-family: 'Portafolio Sans';
+    src: url('/assets/fonts/PortafolioSans-300-normal.otf') format('opentype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Portafolio Sans';
+    src: url('/assets/fonts/PortafolioSans-300-italic.otf') format('opentype');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Portafolio Sans';
+    src: url('/assets/fonts/PortafolioSans-450-normal.otf') format('opentype');
+    font-weight: 450;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Portafolio Sans';
+    src: url('/assets/fonts/PortafolioSans-450-normal.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Portafolio Sans';
+    src: url('/assets/fonts/PortafolioSans-450-italic.otf') format('opentype');
+    font-weight: 450;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Portafolio Sans';
+    src: url('/assets/fonts/PortafolioSans-800-normal.otf') format('opentype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Portafolio Sans';
+    src: url('/assets/fonts/PortafolioSans-800-italic.otf') format('opentype');
+    font-weight: 800;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Neue Montreal';
+    src: url('/assets/fonts/PortafolioSans-450-normal.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
