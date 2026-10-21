@@ -51,6 +51,8 @@ os.environ["ADMIN_TOKEN"] = ""
 # 4. Validaciones del formulario
 ok = {"name": "Cliente", "email": "cliente@empresa.com", "message": "Hola, me interesa un proyecto."}
 check("Mensaje válido -> 200", client.post('/api/send-message', json=ok).status_code == 200)
+check("Formulario/Non-JSON rechazado (CSRF prevent) -> 415",
+      client.post('/api/send-message', data=ok).status_code == 415)
 check("Email inválido -> 400", client.post('/api/send-message', json={**ok, "email": "no-es-email"}).status_code == 400)
 check("Header injection en email -> 400",
       client.post('/api/send-message', json={**ok, "email": "a@b.com\r\nBcc: victima@x.com"}).status_code == 400)
