@@ -350,9 +350,13 @@ def _send_email_async(smtp_user, smtp_password, email, name, message, source, co
 @app.post("/api/send-message")
 @limiter.limit("5 per minute; 30 per hour; 100 per day")
 def send_message():
-    data = request.get_json(silent=True)
-    if not isinstance(data, dict):
-        data = request.form.to_dict() or {}
+    # [SEGURIDAD] Prevención CSRF: Se requiere Content-Type application/json estricto.
+    # Esto fuerza el preflight (OPTIONS) de CORS para peticiones cross-origin, bloqueando
+    # ataques basados en formularios simples (<form action="..." method="POST">).
+    if not request.is_json:
+        return jsonify({"error": "Content-Type debe ser application/json"}), 415
+
+    data = request.get_json(silent=True) or {}
     
     # Campo trampa anti-spam (honeypot)
     honeypot = _clean_line(data.get("tel", ""))
