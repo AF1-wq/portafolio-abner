@@ -7346,6 +7346,10 @@ main.nav-active .toggle span:nth-child(3) {
     .loading-screen {
         top: calc(-100%) !important;
     }
+    .loading-screen .rounded-div-wrap.bottom,
+    .loading-screen .rounded-div-wrap.top {
+        height: 0vh !important;
+    }
     .loading-words {
         opacity: 0 !important;
     }

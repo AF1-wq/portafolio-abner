@@ -207,10 +207,18 @@ def _safe_send(relative_path: str):
         abort(404)
     if not file_path.is_file():
         abort(404)
-    # Cache estático de 1 año (31536000 s) para assets y fuentes
-    max_age = 31536000 if any(relative_path.startswith(prefix) for prefix in ["assets/", "fonts/"]) else None
+    # Cache estático de 1 año (31536000 s) para assets y fuentes; revalidación para HTML (evita caché obsoleto en Barba.js)
+    ext = Path(relative_path).suffix.lower()
+    if ext == ".html":
+        max_age = 0
+    elif any(relative_path.startswith(prefix) for prefix in ["assets/", "fonts/"]):
+        max_age = 31536000
+    else:
+        max_age = None
     response = send_from_directory(PUBLIC_DIR, relative_path, max_age=max_age)
-    if Path(relative_path).suffix.lower() in {'.webp', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico'}:
+    if ext == ".html":
+        response.headers['Cache-Control'] = 'no-cache, must-revalidate'
+    elif ext in {'.webp', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico'}:
         response.headers['Cross-Origin-Resource-Policy'] = 'cross-origin'
     return response
 

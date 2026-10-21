@@ -64,14 +64,72 @@ function scheduleLoaderFallback(ms) {
   loaderFallbackTimer = setTimeout(dismissLoaderFallback, ms || 3500);
 }
 
+const PAGE_CSS_VERSION = '20261021';
+const PAGE_CSS_MAP = {
+  home: '/assets/css/home.css?v=' + PAGE_CSS_VERSION,
+  about: '/assets/css/about.css?v=' + PAGE_CSS_VERSION,
+  work: '/assets/css/pages.css?v=' + PAGE_CSS_VERSION,
+  contact: '/assets/css/pages.css?v=' + PAGE_CSS_VERSION
+};
+
+function syncPageStylesheet(namespace) {
+  const targetHref = PAGE_CSS_MAP[namespace];
+  if (!targetHref || !document.head) return;
+  const existingLinks = Array.from(document.querySelectorAll('head link[rel="stylesheet"]')).filter((link) => {
+    const href = link.getAttribute('href') || '';
+    return (
+      href.indexOf('assets/css/home.css') !== -1 ||
+      href.indexOf('assets/css/about.css') !== -1 ||
+      href.indexOf('assets/css/pages.css') !== -1
+    );
+  });
+  if (existingLinks.some((link) => (link.getAttribute('href') || '') === targetHref)) {
+    return;
+  }
+  const newLink = document.createElement('link');
+  newLink.rel = 'stylesheet';
+  newLink.href = targetHref;
+  let cleaned = false;
+  const cleanupOld = () => {
+    if (cleaned) return;
+    cleaned = true;
+    existingLinks.forEach((oldLink) => {
+      if (oldLink !== newLink && oldLink.parentNode) {
+        oldLink.parentNode.removeChild(oldLink);
+      }
+    });
+    safeScrollCall('update');
+    try {
+      ScrollTrigger.refresh();
+    } catch (e) {}
+  };
+  newLink.onload = cleanupOld;
+  newLink.onerror = cleanupOld;
+  setTimeout(cleanupOld, 350);
+  document.head.appendChild(newLink);
+}
+
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
+  if (document.visibilityState === 'visible' && loaderFallbackTimer !== null) {
     scheduleLoaderFallback(1200);
   }
 });
 
 window.addEventListener('load', () => {
-  scheduleLoaderFallback(2800);
+  if (loaderFallbackTimer !== null) {
+    scheduleLoaderFallback(2800);
+  }
+  try {
+    ['/assets/css/home.css?v=' + PAGE_CSS_VERSION, '/assets/css/about.css?v=' + PAGE_CSS_VERSION, '/assets/css/pages.css?v=' + PAGE_CSS_VERSION].forEach((href) => {
+      if (!document.querySelector('link[href="' + href + '"]')) {
+        const preload = document.createElement('link');
+        preload.rel = 'prefetch';
+        preload.as = 'style';
+        preload.href = href;
+        document.head.appendChild(preload);
+      }
+    });
+  } catch (e) {}
 });
 
 try {
@@ -419,7 +477,7 @@ function pageTransitionIn() {
 
   tl.to(".loading-screen .rounded-div-wrap.bottom", {
 		duration: .85,
-		height: "0",
+		height: "0vh",
 		ease: "Power3.easeInOut"
 	},"=-.6");
 
@@ -427,15 +485,13 @@ function pageTransitionIn() {
 		cursor: "auto"
 	},"=-0.6");
 
-  if ($(window).width() > 540) { 
-    tl.set(".loading-screen .rounded-div-wrap.bottom", {
-      height: "10vh"
-    });
-  } else {
-    tl.set(".loading-screen .rounded-div-wrap.bottom", {
-      height: "5vh"
-    });
-  }
+  tl.set(".loading-screen .rounded-div-wrap.bottom", {
+    height: "0vh"
+  });
+
+  tl.set(".loading-screen .rounded-div-wrap.top", {
+    height: "0vh"
+  });
 
   tl.set(".loading-screen", { 
 		top: "calc(-100%)" 
@@ -519,6 +575,11 @@ function initPageTransitions() {
   }
   
 
+  if (barba.headers && typeof barba.headers.set === 'function') {
+    barba.headers.set('Cache-Control', 'no-cache');
+    barba.headers.set('Pragma', 'no-cache');
+  }
+
   barba.init({
     sync: false,
     debug: false,
@@ -543,6 +604,9 @@ function initPageTransitions() {
       async beforeEnter(data) {
         ScrollTrigger.getAll().forEach(t => t.kill());
         safeScrollCall('destroy');
+        if (data && data.next && data.next.namespace) {
+          syncPageStylesheet(data.next.namespace);
+        }
         try { initSmoothScroll(data.next.container); } catch (e) { console.error(e); }
         try { initScript(); } catch (e) { console.error(e); }
       },
