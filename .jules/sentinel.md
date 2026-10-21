@@ -1,0 +1,4 @@
+## 2024-05-15 - [CSRF Mitigation via Content-Type Enforcement]
+**Vulnerability:** The `/api/send-message` endpoint accepted simple form submissions (`application/x-www-form-urlencoded` or `multipart/form-data`) falling back to `request.form.to_dict()`, leaving it open to CSRF attacks from malicious sites.
+**Learning:** Browsers do not perform CORS preflight checks for "simple requests" like standard HTML `<form>` submissions. Therefore, cross-origin POSTs could trigger state-changing actions even with correct CORS setups.
+**Prevention:** Explicitly enforcing `application/json` (`if not request.is_json`) mitigates this because browsers *will* trigger a preflight (`OPTIONS`) request for `application/json` Content-Type when sending requests cross-origin, which the server can then reject if CORS isn't explicitly configured to allow that origin.
