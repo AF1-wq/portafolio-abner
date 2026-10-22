@@ -1,0 +1,4 @@
+## 2023-10-25 - Prevent CSRF via strict Content-Type enforcement
+**Vulnerability:** The `/api/send-message` endpoint processed form data (`request.form.to_dict()`) even if the `Content-Type` was not `application/json`. This allowed Cross-Site Request Forgery (CSRF) via simple cross-origin forms, bypassing CORS preflight protections.
+**Learning:** Accepting `application/x-www-form-urlencoded` or `multipart/form-data` on API endpoints without explicit CSRF tokens opens up the endpoint to CSRF attacks from malicious sites.
+**Prevention:** Strictly enforce `application/json` (`request.is_json`) for all non-GET API endpoints unless explicit CSRF protection mechanisms are in place. Simple cross-origin requests cannot send JSON without triggering a CORS preflight, effectively preventing this class of CSRF.
