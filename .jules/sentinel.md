@@ -1,0 +1,4 @@
+## 2026-10-23 - [CSRF via Simple Cross-Origin Forms]
+**Vulnerability:** The `/api/send-message` endpoint allowed requests with `application/x-www-form-urlencoded` Content-Type (falling back to `request.form.to_dict()`), which makes it vulnerable to Cross-Site Request Forgery (CSRF) via simple `<form>` submissions from arbitrary domains.
+**Learning:** Browsers do not send preflight CORS requests for "simple" content types like `application/x-www-form-urlencoded` or `multipart/form-data`. Without CSRF tokens, relying solely on CORS is insufficient to protect POST endpoints from cross-origin form submissions.
+**Prevention:** Strictly enforce `application/json` Content-Type for all API endpoints. Since browsers always preflight cross-origin requests with `Content-Type: application/json`, CORS policies will effectively block malicious cross-origin POSTs.
