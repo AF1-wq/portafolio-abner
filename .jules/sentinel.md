@@ -1,0 +1,4 @@
+## 2026-10-24 - Cross-Site Request Forgery (CSRF) via Form Fallback
+**Vulnerability:** The `/api/send-message` endpoint allowed fallback to parsing URL-encoded form data (`request.form.to_dict()`) if the JSON parsing failed or was silent, exposing the application to Simple Cross-Origin Requests that could bypass preflight (CORS) checks and lead to CSRF.
+**Learning:** Fallbacks that accept simple content types (like `application/x-www-form-urlencoded` or `multipart/form-data`) in an API endpoint intended for JSON defeat the CSRF protection provided by enforcing `application/json`, which inherently triggers a CORS preflight for cross-origin requests.
+**Prevention:** Strictly enforce `application/json` Content-Type on API endpoints (e.g., using `request.is_json` in Flask) and never silently fallback to parsing forms or query parameters for mutating endpoints.
