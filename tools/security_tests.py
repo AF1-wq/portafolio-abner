@@ -58,6 +58,7 @@ check("company demasiado largo -> 400", client.post('/api/send-message', json={*
 check("JSON no-objeto no rompe (lista)", client.post('/api/send-message', json=["x"]).status_code == 400)
 r = client.post('/api/send-message', data=b'{"name":"' + b"A" * 40000 + b'"}', content_type="application/json")
 check(f"Payload > 32KB -> 413 ({r.status_code})", r.status_code == 413)
+check("Form data rechazada (CSRF) -> 415", client.post('/api/send-message', data=ok).status_code == 415)
 
 # 5. Saneamiento CR/LF en campos de cabecera
 check("_clean_line elimina CR/LF", "\n" not in appmod._clean_line("Juan\r\nBcc: x@y.com") and "\r" not in appmod._clean_line("a\rb"))
