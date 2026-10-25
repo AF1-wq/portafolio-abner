@@ -56,6 +56,7 @@ check("Header injection en email -> 400",
       client.post('/api/send-message', json={**ok, "email": "a@b.com\r\nBcc: victima@x.com"}).status_code == 400)
 check("company demasiado largo -> 400", client.post('/api/send-message', json={**ok, "company": "A" * 500}).status_code == 400)
 check("JSON no-objeto no rompe (lista)", client.post('/api/send-message', json=["x"]).status_code == 400)
+check("Petición sin Content-Type application/json (CSRF) -> 415", client.post('/api/send-message', data=ok).status_code == 415)
 r = client.post('/api/send-message', data=b'{"name":"' + b"A" * 40000 + b'"}', content_type="application/json")
 check(f"Payload > 32KB -> 413 ({r.status_code})", r.status_code == 413)
 
