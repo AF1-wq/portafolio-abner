@@ -17,6 +17,7 @@ from flask_compress import Compress
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
+from urllib.parse import urlparse
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -350,6 +351,13 @@ def _send_email_async(smtp_user, smtp_password, email, name, message, source, co
 @app.post("/api/send-message")
 @limiter.limit("5 per minute; 30 per hour; 100 per day")
 def send_message():
+    # [SEGURIDAD] Validación CSRF: verificar Origin / Referer para bloquear envíos cross-site.
+    origin = request.headers.get("Origin") or request.headers.get("Referer")
+    if origin:
+        parsed_origin = urlparse(origin)
+        if parsed_origin.netloc and parsed_origin.netloc != request.host:
+            return jsonify({"error": "Solicitud cruzada (CSRF) bloqueada"}), 403
+
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         data = request.form.to_dict() or {}
