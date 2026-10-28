@@ -1,0 +1,4 @@
+## 2023-10-28 - CSRF protection via Origin/Referer validation
+**Vulnerability:** The `/api/send-message` endpoint lacked protection against Cross-Site Request Forgery (CSRF). A malicious site could submit cross-origin forms, potentially bypassing UI-level checks, spoofing messages, or exhausting rate limits on behalf of the victim's IP.
+**Learning:** Enforcing `application/json` Content-Type on an unauthenticated contact form introduces a functional regression because it breaks any clients relying on traditional `application/x-www-form-urlencoded` submissions. A non-breaking approach to preventing cross-origin CSRF on such endpoints is strictly validating the `Origin` or `Referer` headers.
+**Prevention:** Validate the `Origin` and `Referer` headers on state-changing endpoints (like `POST /api/send-message`). If they are present but do not match the expected Host (`request.host`), reject the request with a 403 Forbidden.
