@@ -3,6 +3,7 @@ import re
 import hmac
 import ssl
 import sqlite3
+import urllib.parse
 from pathlib import Path
 from datetime import datetime
 import smtplib
@@ -350,6 +351,20 @@ def _send_email_async(smtp_user, smtp_password, email, name, message, source, co
 @app.post("/api/send-message")
 @limiter.limit("5 per minute; 30 per hour; 100 per day")
 def send_message():
+    # [SEGURIDAD] Protección CSRF basada en Origin o Referer
+    origin = request.headers.get("Origin")
+    referer = request.headers.get("Referer")
+
+    if origin:
+        if urllib.parse.urlparse(origin).netloc != request.host:
+            return jsonify({"error": "Origen no autorizado (CSRF)"}), 403
+    elif referer:
+        if urllib.parse.urlparse(referer).netloc != request.host:
+            return jsonify({"error": "Origen no autorizado (CSRF)"}), 403
+    elif is_prod:
+        # En producción exigimos al menos uno de los dos
+        return jsonify({"error": "Petición rechazada (CSRF)"}), 403
+
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         data = request.form.to_dict() or {}
