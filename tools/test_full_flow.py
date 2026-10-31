@@ -30,7 +30,7 @@ def test_full_flow():
         "source": "Formulario de Contacto Web"
     }
     
-    response = client.post('/api/send-message', json=test_payload)
+    response = client.post('/api/send-message', json=test_payload, headers={"Origin": "http://localhost"})
     print(f"HTTP Status: {response.status_code}")
     json_data = response.get_json()
     print(f"Response JSON: {json_data}")
@@ -66,7 +66,7 @@ def test_full_flow():
         "message": "Buy crypto now",
         "tel": "555-123456"  # honeypot filled
     }
-    spam_res = client.post('/api/send-message', json=spam_payload)
+    spam_res = client.post('/api/send-message', json=spam_payload, headers={"Origin": "http://localhost"})
     print(f"Spam Honeypot Status: {spam_res.status_code}, Response: {spam_res.get_json()}")
     assert spam_res.status_code == 200
     
