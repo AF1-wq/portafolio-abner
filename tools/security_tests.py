@@ -42,21 +42,25 @@ for route in ['/../app.py', '/..%2fapp.py', '/%2e%2e/app.py', '/assets/../../app
 
 # 3. Endpoint administrativo deshabilitado / protegido
 check("GET /api/test-email ya no es público", client.get('/api/test-email').status_code in (404, 405))
-check("POST /api/test-email sin token -> 404", client.post('/api/test-email').status_code == 404)
+check("POST /api/test-email sin token -> 404", client.post('/api/test-email', headers={"Origin": "http://localhost"}).status_code == 404)
 os.environ["ADMIN_TOKEN"] = "x" * 32
 check("POST /api/test-email token incorrecto -> 404",
-      client.post('/api/test-email', headers={"X-Admin-Token": "y" * 32}).status_code == 404)
+      client.post('/api/test-email', headers={"X-Admin-Token": "y" * 32, "Origin": "http://localhost"}).status_code == 404)
 os.environ["ADMIN_TOKEN"] = ""
 
-# 4. Validaciones del formulario
+# 4. Validaciones del formulario y CSRF
 ok = {"name": "Cliente", "email": "cliente@empresa.com", "message": "Hola, me interesa un proyecto."}
-check("Mensaje válido -> 200", client.post('/api/send-message', json=ok).status_code == 200)
-check("Email inválido -> 400", client.post('/api/send-message', json={**ok, "email": "no-es-email"}).status_code == 400)
+headers_ok = {"Origin": "http://localhost"}
+check("Mensaje válido con Origin correcto -> 200", client.post('/api/send-message', json=ok, headers=headers_ok).status_code == 200)
+check("Mensaje rechazado sin Origin/Referer (CSRF) -> 403", client.post('/api/send-message', json=ok).status_code == 403)
+check("Mensaje rechazado con Origin distinto (CSRF) -> 403", client.post('/api/send-message', json=ok, headers={"Origin": "http://evil.com"}).status_code == 403)
+
+check("Email inválido -> 400", client.post('/api/send-message', json={**ok, "email": "no-es-email"}, headers=headers_ok).status_code == 400)
 check("Header injection en email -> 400",
-      client.post('/api/send-message', json={**ok, "email": "a@b.com\r\nBcc: victima@x.com"}).status_code == 400)
-check("company demasiado largo -> 400", client.post('/api/send-message', json={**ok, "company": "A" * 500}).status_code == 400)
-check("JSON no-objeto no rompe (lista)", client.post('/api/send-message', json=["x"]).status_code == 400)
-r = client.post('/api/send-message', data=b'{"name":"' + b"A" * 40000 + b'"}', content_type="application/json")
+      client.post('/api/send-message', json={**ok, "email": "a@b.com\r\nBcc: victima@x.com"}, headers=headers_ok).status_code == 400)
+check("company demasiado largo -> 400", client.post('/api/send-message', json={**ok, "company": "A" * 500}, headers=headers_ok).status_code == 400)
+check("JSON no-objeto no rompe (lista)", client.post('/api/send-message', json=["x"], headers=headers_ok).status_code == 400)
+r = client.post('/api/send-message', data=b'{"name":"' + b"A" * 40000 + b'"}', content_type="application/json", headers=headers_ok)
 check(f"Payload > 32KB -> 413 ({r.status_code})", r.status_code == 413)
 
 # 5. Saneamiento CR/LF en campos de cabecera

@@ -25,6 +25,8 @@ DB_PATH = BASE_DIR / "messages.db"
 
 load_dotenv()
 
+from urllib.parse import urlparse
+
 # Habilitar CSP y HTTPS en producción respetando estrictamente los estilos y scripts del diseño
 is_prod = os.environ.get("FLASK_ENV") == "production" or os.environ.get("RENDER") == "true" or "DYNO" in os.environ
 
@@ -111,6 +113,27 @@ limiter = Limiter(
     default_limits=["300 per day", "100 per hour"],
     storage_uri=os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
 )
+
+@app.before_request
+def csrf_protect():
+    # [SEGURIDAD] Protección CSRF para endpoints de la API que mutan estado.
+    # Se valida que el origen (Origin/Referer) coincida con request.host.
+    if request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"} and request.path.startswith("/api/"):
+        origin = request.headers.get("Origin")
+        referer = request.headers.get("Referer")
+
+        is_valid = False
+        if origin:
+            parsed = urlparse(origin)
+            if parsed.netloc == request.host:
+                is_valid = True
+        elif referer:
+            parsed = urlparse(referer)
+            if parsed.netloc == request.host:
+                is_valid = True
+
+        if not is_valid:
+            abort(403)
 
 # ---------------------------------------------------------------------------
 # Utilidades de validación / saneamiento
