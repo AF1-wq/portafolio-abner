@@ -50,14 +50,19 @@ os.environ["ADMIN_TOKEN"] = ""
 
 # 4. Validaciones del formulario
 ok = {"name": "Cliente", "email": "cliente@empresa.com", "message": "Hola, me interesa un proyecto."}
-check("Mensaje válido -> 200", client.post('/api/send-message', json=ok).status_code == 200)
-check("Email inválido -> 400", client.post('/api/send-message', json={**ok, "email": "no-es-email"}).status_code == 400)
+check("Mensaje válido -> 200", client.post('/api/send-message', json=ok, headers={"Origin": "http://localhost"}).status_code == 200)
+check("Email inválido -> 400", client.post('/api/send-message', json={**ok, "email": "no-es-email"}, headers={"Origin": "http://localhost"}).status_code == 400)
 check("Header injection en email -> 400",
-      client.post('/api/send-message', json={**ok, "email": "a@b.com\r\nBcc: victima@x.com"}).status_code == 400)
-check("company demasiado largo -> 400", client.post('/api/send-message', json={**ok, "company": "A" * 500}).status_code == 400)
-check("JSON no-objeto no rompe (lista)", client.post('/api/send-message', json=["x"]).status_code == 400)
-r = client.post('/api/send-message', data=b'{"name":"' + b"A" * 40000 + b'"}', content_type="application/json")
+      client.post('/api/send-message', json={**ok, "email": "a@b.com\r\nBcc: victima@x.com"}, headers={"Origin": "http://localhost"}).status_code == 400)
+check("company demasiado largo -> 400", client.post('/api/send-message', json={**ok, "company": "A" * 500}, headers={"Origin": "http://localhost"}).status_code == 400)
+check("JSON no-objeto no rompe (lista)", client.post('/api/send-message', json=["x"], headers={"Origin": "http://localhost"}).status_code == 400)
+r = client.post('/api/send-message', data=b'{"name":"' + b"A" * 40000 + b'"}', content_type="application/json", headers={"Origin": "http://localhost"})
 check(f"Payload > 32KB -> 413 ({r.status_code})", r.status_code == 413)
+
+check("CSRF Origin Header válido -> 200", client.post('/api/send-message', json=ok, headers={"Origin": "http://localhost"}).status_code == 200)
+check("CSRF sin Origin/Referer -> 403", client.post('/api/send-message', json=ok).status_code == 403)
+check("CSRF Origin Header inválido -> 403", client.post('/api/send-message', json=ok, headers={"Origin": "http://evil.com"}).status_code == 403)
+check("CSRF Referer Header inválido -> 403", client.post('/api/send-message', json=ok, headers={"Referer": "http://evil.com/page"}).status_code == 403)
 
 # 5. Saneamiento CR/LF en campos de cabecera
 check("_clean_line elimina CR/LF", "\n" not in appmod._clean_line("Juan\r\nBcc: x@y.com") and "\r" not in appmod._clean_line("a\rb"))
