@@ -6,6 +6,7 @@ import sqlite3
 from pathlib import Path
 from datetime import datetime
 import smtplib
+from urllib.parse import urlparse
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.utils import formataddr
@@ -350,6 +351,24 @@ def _send_email_async(smtp_user, smtp_password, email, name, message, source, co
 @app.post("/api/send-message")
 @limiter.limit("5 per minute; 30 per hour; 100 per day")
 def send_message():
+    # [SEGURIDAD] Protección CSRF: Validar Origin o Referer contra request.host
+    # en lugar de forzar JSON, para mantener compatibilidad con formularios html.
+    origin = request.headers.get("Origin")
+    referer = request.headers.get("Referer")
+
+    if not origin and not referer:
+        app.logger.warning("CSRF bloqueado: Falta Origin y Referer")
+        return jsonify({"error": "Acceso denegado por política de seguridad"}), 403
+
+    req_host = request.host.split(':')[0]
+
+    if origin and urlparse(origin).netloc.split(':')[0] != req_host:
+        app.logger.warning(f"CSRF bloqueado: Origin={origin}, host={request.host}")
+        return jsonify({"error": "Acceso denegado por política de seguridad"}), 403
+    if referer and urlparse(referer).netloc.split(':')[0] != req_host:
+        app.logger.warning(f"CSRF bloqueado: Referer={referer}, host={request.host}")
+        return jsonify({"error": "Acceso denegado por política de seguridad"}), 403
+
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         data = request.form.to_dict() or {}
