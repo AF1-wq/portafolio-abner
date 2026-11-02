@@ -63,6 +63,8 @@ check("CSRF Origin Header válido -> 200", client.post('/api/send-message', json
 check("CSRF sin Origin/Referer -> 403", client.post('/api/send-message', json=ok).status_code == 403)
 check("CSRF Origin Header inválido -> 403", client.post('/api/send-message', json=ok, headers={"Origin": "http://evil.com"}).status_code == 403)
 check("CSRF Referer Header inválido -> 403", client.post('/api/send-message', json=ok, headers={"Referer": "http://evil.com/page"}).status_code == 403)
+check("CSRF bypass via auth creds en Origin -> 403", client.post('/api/send-message', json=ok, headers={"Origin": "http://localhost:password@evil.com"}).status_code == 403)
+check("CSRF bypass via auth creds en Referer -> 403", client.post('/api/send-message', json=ok, headers={"Referer": "http://localhost:password@evil.com/page"}).status_code == 403)
 
 # 5. Saneamiento CR/LF en campos de cabecera
 check("_clean_line elimina CR/LF", "\n" not in appmod._clean_line("Juan\r\nBcc: x@y.com") and "\r" not in appmod._clean_line("a\rb"))

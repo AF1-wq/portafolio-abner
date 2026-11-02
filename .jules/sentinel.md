@@ -2,3 +2,8 @@
 **Vulnerability:** The `/api/send-message` endpoint lacked Cross-Site Request Forgery (CSRF) protection. Normally, an API might enforce a strict `Content-Type: application/json` as partial CSRF defense, but this endpoint also accepts `application/x-www-form-urlencoded` or `multipart/form-data` to support traditional HTML form submissions.
 **Learning:** Forcing strict JSON on dual-use endpoints (API + Form submission) breaks legitimate traditional form functionality. CSRF can still be effectively mitigated by relying on standard Origin or Referer header validation when requests are made by modern browsers.
 **Prevention:** When an endpoint handles both JSON and standard form submissions, validate the `Origin` or `Referer` headers against the server's `request.host` instead of strictly enforcing the Content-Type.
+
+## 2026-11-02 - Fix CSRF bypass via URL credentials in Origin/Referer headers
+**Vulnerability:** The CSRF validation logic in `app.py` for the `/api/send-message` endpoint improperly extracted the hostname from the `Origin` and `Referer` headers. By splitting the `netloc` component on `:` and taking the first part (`urlparse(origin).netloc.split(':')[0]`), an attacker could craft a payload with URL credentials that matched the expected host (e.g. `http://localhost:password@evil.com`) to bypass the CSRF protection.
+**Learning:** Using string splitting on URL components is prone to subtle bugs and bypasses. It's safer to rely on established URL parsing libraries that correctly handle edge cases, such as the `hostname` property in Python's `urlparse`.
+**Prevention:** Use `urlparse(...).hostname` to safely extract the hostname instead of parsing `.netloc` directly. Ensure tests include malicious payloads mimicking the attack vector.
