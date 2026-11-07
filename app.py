@@ -362,10 +362,12 @@ def send_message():
 
     req_host = request.host.split(':')[0]
 
-    if origin and urlparse(origin).netloc.split(':')[0] != req_host:
+    # [SEGURIDAD] Usamos urlparse().hostname en lugar de .netloc para evitar bypass de CSRF
+    # ya que .netloc puede contener credenciales y ser manipulado.
+    if origin and urlparse(origin).hostname != req_host:
         app.logger.warning(f"CSRF bloqueado: Origin={origin}, host={request.host}")
         return jsonify({"error": "Acceso denegado por política de seguridad"}), 403
-    if referer and urlparse(referer).netloc.split(':')[0] != req_host:
+    if referer and urlparse(referer).hostname != req_host:
         app.logger.warning(f"CSRF bloqueado: Referer={referer}, host={request.host}")
         return jsonify({"error": "Acceso denegado por política de seguridad"}), 403
 
